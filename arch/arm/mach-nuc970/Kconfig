@@ -50,6 +50,10 @@ config BOARD_ETH2UART
 	depends on !USE_OF
     bool "NUC972 Ethernet To UART Board"
 
+config BOARD_DISP976
+	depends on !USE_OF
+    bool "NUC976 DISP976 Board"
+
 config BOARD_HMI
 	depends on !USE_OF
    bool "N9H30 HMI Demo Board"
