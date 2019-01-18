@@ -178,7 +178,12 @@ struct nuc970_pinctrl_group {
 	const unsigned func;
 };
 
+#if defined(CONFIG_BOARD_DISP976)
+/* MDC/MDIO not used */
+static const unsigned emac0_pins[] = {0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
+#else
 static const unsigned emac0_pins[] = {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
+#endif
 static const unsigned emac1_pins[] = {0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B}; // Port E
 static const unsigned pps0_pin[] = {0x5E};
 static const unsigned pps1_pin[] = {0x4D};
@@ -202,7 +207,8 @@ static const unsigned kpi_7_pins[] = {0x7C, 0x7D, 0x7E, 0x7F}; // 8 col
 static const unsigned kpi_8_pins[] = {0x04, 0x05, 0x6}; // 3 row
 
 
-#ifdef CONFIG_BOARD_TOMATO
+#if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
+/* SD0_PWR not used */
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
 #else
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};
@@ -444,6 +450,11 @@ static const struct nuc970_pinctrl_group nuc970_pinctrl_groups[] = {
 		.num_pins = ARRAY_SIZE(emac0_pins),
 		.func = 0x1,
 	},
+	{
+		.name = "emac0_no_mdc_grp",
+		.pins = emac0_no_mdc_pins,
+		.num_pins = ARRAY_SIZE(emac0_no_mdc_pins),
+		.func = 0x1,
 	{
 		.name = "emac1_grp",
 		.pins = emac1_pins,
@@ -1393,7 +1404,7 @@ struct nuc970_pmx_func {
 	const unsigned num_groups;
 };
 
-static const char * const emac0_groups[] = {"emac0_grp"};
+static const char * const emac0_groups[] = {"emac0_grp", "emac0_no_mdc_grp"};
 static const char * const emac1_groups[] = {"emac1_grp"};
 static const char * const pps0_groups[] = {"pps0_grp"};
 static const char * const pps1_groups[] = {"pps1_grp"};
