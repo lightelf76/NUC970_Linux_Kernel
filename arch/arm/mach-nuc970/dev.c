@@ -853,13 +853,11 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 		.name = "uboot",
 		.size = 0x7E000,
 		.offset = 0,
-		.mask_flags = MTD_WRITEBLE,
 	},
 	{
 		.name = "uboot-env",
 		.size = 0x2000,
 		.offset = MTDPART_OFS_APPEND,
-		.mask_flags = MTD_WRITEBLE,
 	},
 	{
 		.name = "kernel",
