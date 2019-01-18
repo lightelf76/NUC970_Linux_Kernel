@@ -775,6 +775,10 @@ struct platform_device nuc970_device_audio_pcm = {
 /* I2C clients */
 static struct i2c_board_info __initdata nuc970_i2c_clients0[] =
 {
+#ifdef CONFIG_BOARD_DISP976
+	{I2C_BOARD_INFO("at24c02", 0x50),},
+#endif
+
 #ifdef CONFIG_SND_SOC_NAU8822
 	{I2C_BOARD_INFO("nau8822", 0x1a),},
 #endif
@@ -844,8 +848,31 @@ struct platform_device nuc970_device_i2c1 = {
 /* spi device, spi flash info */
 #ifdef CONFIG_MTD_M25P80
 static struct mtd_partition nuc970_spi0_flash_partitions[] = {
- #ifdef CONFIG_BOARD_ETH2UART
-         {
+ #if defined(CONFIG_BOARD_DISP976)
+	{
+		.name = "uboot",
+		.size = 0x7E000,
+		.offset = 0,
+		.mask_flags = MTD_WRITEBLE,
+	},
+	{
+		.name = "uboot-env",
+		.size = 0x2000,
+		.offset = MTDPART_OFS_APPEND,
+		.mask_flags = MTD_WRITEBLE,
+	},
+	{
+		.name = "kernel",
+		.size = 0x780000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "userfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
+ #elif defined(CONFIG_BOARD_ETH2UART)
+        {
                 .name = "kernel",
                 .size = 0x0800000,
                 .offset = 0x1000000,
