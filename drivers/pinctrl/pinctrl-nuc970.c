@@ -179,7 +179,7 @@ struct nuc970_pinctrl_group {
 };
 
 #if defined(CONFIG_BOARD_DISP976)
-/* MDC/MDIO not used */
+/* No MDC/MDIO pins */
 static const unsigned emac0_pins[] = {0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
 #else
 static const unsigned emac0_pins[] = {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
@@ -208,7 +208,6 @@ static const unsigned kpi_8_pins[] = {0x04, 0x05, 0x6}; // 3 row
 
 
 #if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
-/* SD0_PWR not used */
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
 #else
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};
@@ -274,7 +273,12 @@ static const unsigned uart8_1_pins[] = {0x4C, 0x4D}; // rts, cts
 static const unsigned uart8_2_pins[] = {0x7C, 0x7D}; // tx, rx
 static const unsigned uart8_3_pins[] = {0x7E, 0x7F}; // rts, cts
 static const unsigned uart8_4_pins[] = {0x8C, 0x8D}; // tx, rx
+#if defined (CONFIG_BOARD_DISP976)
+/* Only RTS pin used */
+static const unsigned uart8_5_pins[] = {0x8E}; // rts
+#else
 static const unsigned uart8_5_pins[] = {0x8E, 0x8F}; // rts, cts
+#endif
 static const unsigned uart9_0_pins[] = {0x3B, 0x3C}; // tx, rx
 static const unsigned uart9_1_pins[] = {0x3E, 0x3F}; // tx, rx
 static const unsigned uart9_2_pins[] = {0x72, 0x73}; // tx, rx
@@ -299,7 +303,12 @@ static const unsigned spi1_0_pins[] = {0x1C, 0x1D, 0x1E, 0x1F};
 static const unsigned spi1_1_pins[] = {0x11}; // ss1
 static const unsigned spi1_2_pins[] = {0x64, 0x65}; // quad
 static const unsigned spi1_3_pins[] = {0x7D}; // ss1
+#if defined (CONFIG_BOARD_DISP976)
+/* Only DO pin used */
+static const unsigned spi1_4_pins[] = {0x87};
+#else
 static const unsigned spi1_4_pins[] = {0x85, 0x86, 0x87, 0x88};
+#endif
 
 static const unsigned can0_0_pins[] = {0x1A, 0x1B}; // Port B
 static const unsigned can0_1_pins[] = {0x72, 0x73}; // Port H
@@ -450,11 +459,6 @@ static const struct nuc970_pinctrl_group nuc970_pinctrl_groups[] = {
 		.num_pins = ARRAY_SIZE(emac0_pins),
 		.func = 0x1,
 	},
-	{
-		.name = "emac0_no_mdc_grp",
-		.pins = emac0_no_mdc_pins,
-		.num_pins = ARRAY_SIZE(emac0_no_mdc_pins),
-		.func = 0x1,
 	{
 		.name = "emac1_grp",
 		.pins = emac1_pins,
@@ -1404,7 +1408,7 @@ struct nuc970_pmx_func {
 	const unsigned num_groups;
 };
 
-static const char * const emac0_groups[] = {"emac0_grp", "emac0_no_mdc_grp"};
+static const char * const emac0_groups[] = {"emac0_grp"};
 static const char * const emac1_groups[] = {"emac1_grp"};
 static const char * const pps0_groups[] = {"pps0_grp"};
 static const char * const pps1_groups[] = {"pps1_grp"};
