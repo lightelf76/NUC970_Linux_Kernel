@@ -1215,7 +1215,11 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 	ether->cur_tx = 0x0;
 	ether->cur_rx = 0x0;
 	ether->finish_tx = 0x0;
+#ifndef CONFIG_BOARD_DISP976
 	ether->link = 0;
+#else
+	ether->link = 1;
+#endif 
 	ether->speed = 100;
 	ether->duplex = DUPLEX_FULL;
 	spin_lock_init(&ether->lock);
@@ -1228,6 +1232,7 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "nuc970_mii_setup err\n");
 		goto err2;
 	}
+#endif /* CONFIG_BOARD_DISP976 */
 	netif_carrier_off(dev);
 	error = register_netdev(dev);
 	if (error != 0) {
@@ -1235,7 +1240,6 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 		error = -ENODEV;
 		goto err2;
 	}
-#endif /* CONFIG_BOARD_DISP976 */
 	return 0;
 
 err2:
