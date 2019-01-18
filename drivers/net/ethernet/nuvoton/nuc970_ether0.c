@@ -1223,7 +1223,7 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 	netif_napi_add(dev, &ether->napi, nuc970_poll, /*16*/32);
 
 	ether_setup(dev);
-
+#ifndef CONFIG_BOARD_DISP976
 	if((error = nuc970_mii_setup(dev)) < 0) {
 		dev_err(&pdev->dev, "nuc970_mii_setup err\n");
 		goto err2;
@@ -1235,7 +1235,7 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 		error = -ENODEV;
 		goto err2;
 	}
-
+#endif /* CONFIG_BOARD_DISP976 */
 	return 0;
 
 err2:
