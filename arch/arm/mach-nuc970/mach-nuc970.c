@@ -17,6 +17,8 @@
 #include <linux/platform_device.h>
 #include <linux/clk.h>
 #include <linux/memblock.h>
+#include <linux/phy.h>
+#include <linux/phy_fixed.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 #include <asm/mach-types.h>
@@ -73,9 +75,15 @@ void __init nuc970_map_io(void)
 	iotable_init(nuc970_iodesc, ARRAY_SIZE(nuc970_iodesc));
 }
 
+static struct fixed_phy_status fixed_phy_state __initdata = {
+	.link	= 1,
+	.speed	= 100,
+	.duplex	= 1,
+};
 static void __init nuc970_init(void)
 {
 	nuc970_platform_init(nuc970_dev, ARRAY_SIZE(nuc970_dev));
+	fixed_phy_add(PHY_POLL, 0, &fixed_phy_state);
 }
 
 static void __init nuc970_init_late(void)

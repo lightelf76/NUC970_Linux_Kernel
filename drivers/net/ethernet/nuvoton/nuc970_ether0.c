@@ -12,6 +12,7 @@
 #include <linux/init.h>
 #include <linux/mii.h>
 #include <linux/phy.h>
+#include <linux/phy_fixed.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/skbuff.h>
@@ -550,6 +551,7 @@ static void nuc970_reset_mac(struct net_device *dev, int need_free)
 		netif_wake_queue(dev);
 }
 
+
 static int nuc970_mdio_write(struct mii_bus *bus, int phy_id, int regnum,
 		u16 value)
 {
@@ -593,6 +595,7 @@ static int nuc970_mdio_reset(struct mii_bus *bus)
 	// reser ENAC engine??
 	return 0;
 }
+
 
 static int nuc970_set_mac_address(struct net_device *dev, void *addr)
 {
@@ -1052,7 +1055,32 @@ static void __init get_mac_address(struct net_device *dev)
 		dev_err(&pdev->dev, "invalid mac address\n");
 }
 
+#ifdef CONFIG_FIXED_PHY
+static int nuc970_mii_setup(struct net_device *dev)
+{
+	struct nuc970_ether *ether = netdev_priv(dev);
+	struct platform_device *pdev;
+	struct phy_device *phydev = NULL;
+	char phy_name[MII_BUS_ID_SIZE + 3];
+	int err = 0;
 
+	pdev = ether->pdev;
+
+	snprintf(phy_name, sizeof(phy_name), PHY_ID_FMT, "fixed-0", 0);
+	phydev = phy_connect(dev, phy_name,
+			     &adjust_link,
+			     PHY_INTERFACE_MODE_RMII);
+	if (IS_ERR(phydev)) {
+		dev_err(&pdev->dev, "could not attach to PHY\n");
+		return PTR_ERR(phydev);
+	}
+	phydev->supported &= PHY_BASIC_FEATURES;
+	phydev->advertising = phydev->supported;
+	ether->phy_dev = phydev;
+	ether->wol = 0;
+	return 0;
+}
+#else /* CONFIG_FIXED_PHY */
 static int nuc970_mii_setup(struct net_device *dev)
 {
 	struct nuc970_ether *ether = netdev_priv(dev);
@@ -1061,7 +1089,6 @@ static int nuc970_mii_setup(struct net_device *dev)
 	int i, err = 0;
 
 	pdev = ether->pdev;
-
 	ether->mii_bus = mdiobus_alloc();
 	if (!ether->mii_bus) {
 		err = -ENOMEM;
@@ -1126,9 +1153,9 @@ out2:
 out1:
 	mdiobus_free(ether->mii_bus);
 out0:
-
 	return err;
 }
+#endif /* CONFIG_FIXED_PHY */
 
 static int nuc970_ether_probe(struct platform_device *pdev)
 {
@@ -1215,11 +1242,7 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 	ether->cur_tx = 0x0;
 	ether->cur_rx = 0x0;
 	ether->finish_tx = 0x0;
-#ifndef CONFIG_BOARD_DISP976
 	ether->link = 0;
-#else
-	ether->link = 1;
-#endif 
 	ether->speed = 100;
 	ether->duplex = DUPLEX_FULL;
 	spin_lock_init(&ether->lock);
@@ -1227,12 +1250,10 @@ static int nuc970_ether_probe(struct platform_device *pdev)
 	netif_napi_add(dev, &ether->napi, nuc970_poll, /*16*/32);
 
 	ether_setup(dev);
-#ifndef CONFIG_BOARD_DISP976
 	if((error = nuc970_mii_setup(dev)) < 0) {
 		dev_err(&pdev->dev, "nuc970_mii_setup err\n");
 		goto err2;
 	}
-#endif /* CONFIG_BOARD_DISP976 */
 	netif_carrier_off(dev);
 	error = register_netdev(dev);
 	if (error != 0) {
