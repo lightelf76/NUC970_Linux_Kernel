@@ -2137,6 +2137,11 @@ choice
         depends on FB_NUC970
         select FB_NUC970_24BIT_PIN
 
+	config G057VN01_640X480
+	bool "AUO G057VN01 640X480 5.7-Inch Color TFT LCD"
+	depends on FB_NUC970
+	select FB_NUC970_16BIT_PIN
+
 	config ILI9431_MPU80_240x320
         bool "ILI9431 240x320 MPU 8080 LCD"
         depends on FB_NUC970

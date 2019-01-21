@@ -327,6 +327,39 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	},
 #endif
 
+#ifdef CONFIG_G057VN01_640X480
+	[0] = {
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.width		= 640,
+		.height		= 480,
+		.xres		= 640,
+		.yres		= 480,
+		.pixclock	= 25000000,
+		.left_margin	= 16,
+		.right_margin	= 144,
+		.hsync_len	= 20,
+		.upper_margin	= 35,
+		.lower_margin	= 10,
+		.vsync_len	= 3,
+#ifdef CONFIG_FB_SRCFMT_RGB888
+		.dccs		= 0x0e00020a,
+                .fbctrl		= 0x02800280,
+#elif defined(CONFIG_FB_SRCFMT_RGB565)
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x01400140,
+#endif
+#ifdef CONFIG_FB_LCD_16BIT_PIN
+                .devctl		= 0x050000c0,
+#elif defined(CONFIG_FB_LCD_18BIT_PIN)
+                .devctl		= 0x060000c0,
+#elif defined(CONFIG_FB_LCD_24BIT_PIN)
+                .devctl		= 0x070000c0,
+#endif
+		.scale		= 0x4000400,
+	},
+#endif /* CONFIG_G057VN01_640X480 */
+
 #ifdef CONFIG_FW070TFT_800X480
 	/* FW070TFT 800x480 TFT Panel , 24bits*/
 	[0] = {
@@ -777,6 +810,7 @@ static struct i2c_board_info __initdata nuc970_i2c_clients0[] =
 {
 #ifdef CONFIG_BOARD_DISP976
 	{I2C_BOARD_INFO("at24c02", 0x50),},
+	{I2C_BOARD_INFO("at24c02", 0x5F),},
 #endif
 
 #ifdef CONFIG_SND_SOC_NAU8822
@@ -1005,7 +1039,7 @@ static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
 #ifdef CONFIG_MTD_M25P80
         {
                 .modalias = "m25p80",
-                .max_speed_hz = 15000000,
+                .max_speed_hz = 25000000,
                 .bus_num = 1,
                 .chip_select = 0,       //use SS0
                 .platform_data = &nuc970_spi1_flash_data,
