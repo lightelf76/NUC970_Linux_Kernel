@@ -884,24 +884,14 @@ struct platform_device nuc970_device_i2c1 = {
 static struct mtd_partition nuc970_spi0_flash_partitions[] = {
  #if defined(CONFIG_BOARD_DISP976)
 	{
-		.name = "uboot",
-		.size = 0x7E000,
-		.offset = 0,
-	},
-	{
-		.name = "uboot-env",
-		.size = 0x2000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-	{
 		.name = "kernel",
-		.size = 0x780000,
-		.offset = MTDPART_OFS_APPEND,
+		.size =   0x0580000,
+		.offset = 0x0080000,
 	},
 	{
-		.name = "userfs",
-		.size = MTDPART_SIZ_FULL,
-		.offset = MTDPART_OFS_APPEND,
+		.name = "rootfs",
+		.size =   0x0A00000,
+		.offset = 0x0600000,
 	},
  #elif defined(CONFIG_BOARD_ETH2UART)
         {
