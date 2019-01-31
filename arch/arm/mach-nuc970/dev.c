@@ -329,17 +329,18 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 
 #ifdef CONFIG_G057VN01_640X480
 	[0] = {
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.type 		= LCM_DCCS_VA_SRC_RGB888,
-		.bpp		= 32,
-		.dccs		= 0x0e00020a,
-                .fbctrl		= 0x02800280,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01400140,
-#endif /* CONFIG_FB_SRCFMT_RGB888 */
+#else
+		/* defaults to RGB888 */
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+                .fbctrl		= 0x02800280,
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 640,
 		.height		= 480,
 		.xres		= 640,
@@ -351,12 +352,14 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.upper_margin	= 35,
 		.lower_margin	= 10,
 		.vsync_len	= 3,
-#ifdef CONFIG_FB_LCD_16BIT_PIN
-                .devctl		= 0x050000c0,
+
+#ifdef CONFIG_FB_LCD_24BIT_PIN
+                .devctl		= 0x070000c0,
 #elif defined(CONFIG_FB_LCD_18BIT_PIN)
                 .devctl		= 0x060000c0,
-#elif defined(CONFIG_FB_LCD_24BIT_PIN)
-                .devctl		= 0x070000c0,
+#else
+		/* defaults to 16BIT_PIN */
+                .devctl		= 0x050000c0,
 #endif
 		.scale		= 0x04000400,
 	},
