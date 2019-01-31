@@ -329,26 +329,28 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 
 #ifdef CONFIG_G057VN01_640X480
 	[0] = {
+#ifdef CONFIG_FB_SRCFMT_RGB888
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+                .fbctrl		= 0x02800280,
+#elif defined(CONFIG_FB_SRCFMT_RGB565)
+		.type		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x01400140,
+#endif /* CONFIG_FB_SRCFMT_RGB888 */
 		.width		= 640,
 		.height		= 480,
 		.xres		= 640,
 		.yres		= 480,
-		.pixclock	= 25000000,
+		.pixclock	= 25200000,
 		.left_margin	= 16,
 		.right_margin	= 144,
 		.hsync_len	= 20,
 		.upper_margin	= 35,
 		.lower_margin	= 10,
 		.vsync_len	= 3,
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.dccs		= 0x0e00020a,
-                .fbctrl		= 0x02800280,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
-		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x01400140,
-#endif
 #ifdef CONFIG_FB_LCD_16BIT_PIN
                 .devctl		= 0x050000c0,
 #elif defined(CONFIG_FB_LCD_18BIT_PIN)
@@ -356,7 +358,7 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 #elif defined(CONFIG_FB_LCD_24BIT_PIN)
                 .devctl		= 0x070000c0,
 #endif
-		.scale		= 0x4000400,
+		.scale		= 0x04000400,
 	},
 #endif /* CONFIG_G057VN01_640X480 */
 
@@ -884,14 +886,24 @@ struct platform_device nuc970_device_i2c1 = {
 static struct mtd_partition nuc970_spi0_flash_partitions[] = {
  #if defined(CONFIG_BOARD_DISP976)
 	{
-		.name = "kernel",
-		.size =   0x0580000,
-		.offset = 0x0080000,
+		.name = "uboot",
+		.size = 0x7E000,
+		.offset = 0,
 	},
 	{
-		.name = "rootfs",
-		.size =   0x0A00000,
-		.offset = 0x0600000,
+		.name = "uboot-env",
+		.size = 0x2000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "kernel",
+		.size = 0x780000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "userfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
 	},
  #elif defined(CONFIG_BOARD_ETH2UART)
         {
