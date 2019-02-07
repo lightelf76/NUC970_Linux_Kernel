@@ -537,15 +537,15 @@ config SPI_NUC970_P1
 
 choice
 	prompt "SPI1 transfer mode selection"
-	default SPI_NUC970_P1_NORMAL_MODE
+	default SPI_NUC970_P1_NORMAL
 	depends on SPI_NUC970_P1
 	help
 	  Select SPI1 multi-function pin.
 	  Pins can be PB12 ~ PB15 or PI5 ~ PI8 for normal mode and additional PG4, PG5 for quad mode.
 
-	config SPI_NUC970_P1_NORMAL_MODE
+	config SPI_NUC970_P1_NORMAL
 		bool "Normal mode"
-	config SPI_NUC970_P1_QUAD_MODE
+	config SPI_NUC970_P1_QUAD
 		bool "Quad mode"
 endchoice
 

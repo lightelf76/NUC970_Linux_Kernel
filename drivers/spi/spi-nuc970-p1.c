@@ -674,21 +674,21 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 #if defined(CONFIG_OF)
 	p = devm_pinctrl_get_select_default(&pdev->dev);
 #else
- #if defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+ #if defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-PB");
- #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-PI");
- #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-ss1-PB");
- #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-ss1-PI");
- #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-PB");
- #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-PI");
- #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-ss1-PB");
- #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-ss1-PI");
  #endif
 #endif

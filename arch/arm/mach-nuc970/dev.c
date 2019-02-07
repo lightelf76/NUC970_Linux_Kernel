@@ -1007,7 +1007,7 @@ struct platform_device nuc970_device_spi0 = {
 
 #if defined(CONFIG_SPI_NUC970_P1) || defined(CONFIG_SPI_NUC970_P1_MODULE)
 /* spi device, spi flash info */
-#ifdef CONFIG_BOARD_TOMATO
+#if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
 
 #ifdef CONFIG_SPI_SPIDEV
 static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
