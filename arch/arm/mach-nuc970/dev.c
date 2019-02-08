@@ -1594,9 +1594,10 @@ static struct platform_device iio_gpio_trigger = {
 #if defined(CONFIG_BACKLIGHT_PWM)
 static struct platform_pwm_backlight_data nuc970_backlight_data = {
 	.pwm_id		= 0,
-	.max_brightness	= 1,
-	.dft_brightness	= 1,
-	.pwm_period_ns	= 78000,
+	.max_brightness	= 490000,
+	.dft_brightness	= 250000,
+	.lth_brightness	= 20000,
+	.pwm_period_ns	= 500000,
 };
 
 struct platform_device nuc970_pwm_bl = {
