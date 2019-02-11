@@ -1345,11 +1345,33 @@ static struct plat_nuc970serial_port nuc970_scuart_data[] = {
         },
         {},
 };
-#endif
 
-#if defined(CONFIG_NUC970_SC) || defined(CONFIG_NUC970_SC_MODULE) || defined(CONFIG_SCUART_NUC970) || defined(CONFIG_SCUART_NUC970_MODULE)
+#if defined(CONFIG_NUC970_SCUART0)
+struct platform_device nuc970_device_sc0 = {
+	.name		  = "nuc970_sc",
+	.id		  = 0,
+	.dev		  	= {
+		.platform_data	= &nuc970_scuart_data[0],
+	},
+};
+#endif /* CONFIG_NUC970_SCUART0 */
+
+#if defined(CONFIG_NUC970_SCUART1)
+struct platform_device nuc970_device_sc1 = {
+	.name		  = "nuc970_sc",
+	.id		  = 1,
+	.dev			= {
+		.platform_data	= &nuc970_scuart_data[1],
+	},
+};
+#endif /* CONFIG_NUC970_SCUART1 */
+
+#endif /* CONFIG_SCUART_NUC970 || CONFIG_SCUART_NUC970_MODULE */
+
 
 #if defined(CONFIG_NUC970_SC) || defined(CONFIG_NUC970_SC_MODULE)
+
+#if defined(CONFIG_NUC970_SC0)
 static struct resource nuc970_sc0_resource[] = {
         [0] = {
                 .start = NUC970_PA_SC,
@@ -1362,6 +1384,16 @@ static struct resource nuc970_sc0_resource[] = {
                 .flags = IORESOURCE_IRQ,
         },
 };
+struct platform_device nuc970_device_sc0 = {
+	.name		  = "nuc970_sc",
+	.id		  = 0,
+	.num_resources	  = ARRAY_SIZE(nuc970_sc0_resource),
+	.resource	  = nuc970_sc0_resource,
+};
+
+#endif /* CONFIG_NUC970_SC0 */
+
+#if defined(CONFIG_NUC970_SC1)
 static struct resource nuc970_sc1_resource[] = {
         [0] = {
                 .start = NUC970_PA_SC + 0x400,
@@ -1374,36 +1406,16 @@ static struct resource nuc970_sc1_resource[] = {
                 .flags = IORESOURCE_IRQ,
         },
 };
-#endif
-
-struct platform_device nuc970_device_sc0 = {
-        .name		  = "nuc970-sc",
-        .id		  = 0,
-#if defined(CONFIG_NUC970_SC) || defined(CONFIG_NUC970_SC_MODULE)
-        .num_resources	  = ARRAY_SIZE(nuc970_sc0_resource),
-        .resource	  = nuc970_sc0_resource,
-#endif
-#if defined(CONFIG_SCUART_NUC970) || defined(CONFIG_SCUART_NUC970_MODULE)
-        .dev			= {
-                .platform_data	= &nuc970_scuart_data[0],
-        },
-#endif
-};
 struct platform_device nuc970_device_sc1 = {
-        .name		  = "nuc970-sc",
-        .id		  = 1,
-#if defined(CONFIG_NUC970_SC) || defined(CONFIG_NUC970_SC_MODULE)
-        .num_resources	  = ARRAY_SIZE(nuc970_sc1_resource),
-        .resource	  = nuc970_sc1_resource,
-#endif
-#if defined(CONFIG_SCUART_NUC970) || defined(CONFIG_SCUART_NUC970_MODULE)
-        .dev			= {
-                .platform_data	= &nuc970_scuart_data[1],
-        },
-#endif
+	.name		  = "nuc970_sc",
+	.id		  = 1,
+	.num_resources	  = ARRAY_SIZE(nuc970_sc1_resource),
+	.resource	  = nuc970_sc1_resource,
 };
 
-#endif
+#endif /* CONFIG_NUC970_SC1 */
+
+#endif /* CONFIG_NUC970_SC || CONFIG_NUC970_SC_MODULE */
 
 
 #if defined(CONFIG_NUC970_ETIMER) || defined(CONFIG_NUC970_ETIMER_MODULE)
