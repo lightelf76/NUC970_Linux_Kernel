@@ -1781,8 +1781,12 @@ static struct platform_device *nuc970_public_dev[] __initdata = {
 	&i2c_gpio,
 #endif
 #if defined(CONFIG_NUC970_SC) || defined(CONFIG_NUC970_SC_MODULE) || defined(CONFIG_SCUART_NUC970) || defined(CONFIG_SCUART_NUC970_MODULE)
+#if defined(CONFIG_NUC970_SC0) || defined(CONFIG_NUC970_SCUART0)
 	&nuc970_device_sc0,
+#endif
+#if defined(CONFIG_NUC970_SC1) || defined(CONFIG_NUC970_SCUART1)
 	&nuc970_device_sc1,
+#endif
 #endif
 
 #if defined(CONFIG_NUC970_GE2D) || defined(CONFIG_NUC970_GE2D_MODULE)
