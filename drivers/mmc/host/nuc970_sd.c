@@ -790,7 +790,7 @@ static void nuc970_sd_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
                 up(&sdh_fmi_sem);
                 return;
             }
-            printk("ios->clock=%d\n",ios->clock);
+            //printk("ios->clock=%d\n",ios->clock);
             if (ios->clock <= 400000)
             {
                 clk_set_rate(host->upll_clk, 100000000);

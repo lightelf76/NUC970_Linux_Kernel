@@ -892,17 +892,33 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 		.name = "uboot",
 		.size = 0x7E000,
 		.offset = 0,
+		.mask_flags = MTD_WRITEABLE,
 	},
 	{
 		.name = "uboot-env",
 		.size = 0x2000,
 		.offset = MTDPART_OFS_APPEND,
 	},
+  #if defined(CONFIG_CRAMFS) || defined(CONFIG_SQUASHFS)
+	/* compressed read-only rootfs */
+	{
+		.name = "kernel",
+		.size = 0x280000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "rootfs",
+		.size = 0x180000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #else
+	/* in-kernel initramfs */
 	{
 		.name = "kernel",
 		.size = 0x780000,
 		.offset = MTDPART_OFS_APPEND,
 	},
+  #endif /* CONFIG_CRAMFS || CONFIG_SQUASHFS */
 	{
 		.name = "userfs",
 		.size = MTDPART_SIZ_FULL,
