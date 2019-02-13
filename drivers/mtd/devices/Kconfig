@@ -102,6 +102,21 @@ config M25PXX_USE_FAST_READ
 	help
 	  This option enables FAST_READ access supported by ST M25Pxx.
 
+config M25PXX_USE_4K_SECTORS
+	bool "Use small 4096 B erase sectors"
+	depends on MTD_M25P80
+	default y
+	help
+	  Many flash memories support erasing small (4096 B) sectors. Depending
+	  on the usage this feature may provide performance gain in comparision
+	  to erasing whole block (32/64 KiB).
+	  Changing small part of flash content is usually faster with small
+	  sectors. On the other hand erasing should be faster when using 64 KiB
+	  block instead of 16 * 4 KiB sectors.
+
+	  Please note that some tools/drivers/filesystems may not work with
+	  4096 B erase size (e.g. UBIFS requires 15 KiB as minimum).
+
 config MTD_SPEAR_SMI
 	tristate "SPEAR MTD NOR Support through SMI controller"
 	depends on PLAT_SPEAR

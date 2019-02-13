@@ -244,7 +244,7 @@ static int write_sr_cr(struct m25p *flash, u16 val)
     flash->command[0] = OPCODE_WRSR;
     flash->command[1] = val & 0xff;
     flash->command[2] = (val >> 8);
-    
+
     return spi_write(flash->spi, flash->command, 3);
 }
 
@@ -253,13 +253,13 @@ static int winbond_quad_enable(struct m25p *flash)
     int ret, val;
     u8 cmd[3];
     u8 code;
-    
+
     /* write enable for volatile status register */
-    code = OPCODE_WRSR_VOL; 
+    code = OPCODE_WRSR_VOL;
     spi_write(flash->spi, &code, 1);
-    
+
     /* write status register */
-    cmd[0] = OPCODE_RDSR2;  
+    cmd[0] = OPCODE_RDSR2;
     val = read_sr2_winbond(flash);
     cmd[1] = val | SR_QUAD_EN_WB;
     spi_write(flash->spi, &cmd, 2);
@@ -272,9 +272,9 @@ static int winbond_quad_enable(struct m25p *flash)
         dev_err(&flash->spi->dev, "Winbond Quad bit not set\n");
         return -EINVAL;
     }
-    
+
     write_disable(flash);
-    
+
     return 0;
 }
 
@@ -494,7 +494,7 @@ static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
 
 	spi_message_init(&m);
 	memset(t, 0, (sizeof t));
-    
+
     dummy =  m25p80_dummy_cycles_read(flash);
     if (dummy < 0) {
         dev_err(&flash->spi->dev, "No valid read command supported\n");
@@ -588,7 +588,7 @@ static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
 	if (page_offset + len <= flash->page_size) {
 		t[1].len = len;
         t[1].tx_nbits = m25p80_tx_nbits(flash);
-        
+
 		spi_sync(flash->spi, &m);
 
 		*retlen = m.actual_length - m25p_cmdsz(flash);
@@ -600,7 +600,7 @@ static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 		t[1].len = page_size;
         t[1].tx_nbits = m25p80_tx_nbits(flash);
-        
+
 		spi_sync(flash->spi, &m);
 
 		*retlen = m.actual_length - m25p_cmdsz(flash);
@@ -907,7 +907,7 @@ static const struct spi_device_id m25p_ids[] = {
 	/* GigaDevice */
 	{ "gd25q32",  INFO(0xc84016, 0, 64 * 1024,  64, SECT_4K) },
 	{ "gd25q64",  INFO(0xc84017, 0, 64 * 1024, 128, SECT_4K) },
-	{ "gd25q128", INFO(0xc84018, 0, 64 * 1024, 256, SECT_4K) },
+	{ "gd25q128", INFO(0xc84018, 0, 64 * 1024, 256, SECT_4K | M25P80_DUAL_READ | M25P80_QUAD_READ | M25P80_QUAD_WRITE) },
 
 	/* Intel/Numonyx -- xxxs33b */
 	{ "160s33b",  INFO(0x898911, 0, 64 * 1024,  32, 0) },
@@ -1181,12 +1181,14 @@ static int m25p_probe(struct spi_device *spi)
 		flash->mtd._write = sst_write;
 	else
 		flash->mtd._write = m25p80_write;
-
+#ifdef CONFIG_M25PXX_USE_4K_SECTORS
 	/* prefer "small sector" erase if possible */
 	if (info->flags & SECT_4K) {
 		flash->erase_opcode = OPCODE_BE_4K;
 		flash->mtd.erasesize = 4096;
-	} else {
+	} else
+#endif /* CONFIG_M25PXX_USE_4K_SECTORS */
+	{
 		flash->erase_opcode = OPCODE_SE;
 		flash->mtd.erasesize = info->sector_size;
 	}
@@ -1198,7 +1200,7 @@ static int m25p_probe(struct spi_device *spi)
 	flash->mtd.dev.parent = &spi->dev;
 	flash->page_size = info->page_size;
 	flash->mtd.writebufsize = flash->page_size;
-    
+
     if (np) {
 #ifdef CONFIG_OF
         /* If we were instantiated by DT, use it */
@@ -1211,13 +1213,13 @@ static int m25p_probe(struct spi_device *spi)
         /* If we weren't instantiated by DT, default to fast-read */
          flash->flash_read = M25P80_FAST;
     }
-    
+
     /* Some devices cannot do fast-read, no matter what DT tells us */
     if (info->flags & M25P_NO_FR)
         flash->flash_read = M25P80_NORMAL;
-    
+
     flash->flash_write = M25P80_NORMAL;
-     
+
     /* Quad/Dual-read mode takes precedence over fast/normal */
     if ((spi->mode & (SPI_RX_QUAD | SPI_TX_QUAD)) && (info->flags & (M25P80_QUAD_READ | M25P80_QUAD_WRITE))) {
         printk("m25p80: Enable Quad Mode\n");
@@ -1225,10 +1227,10 @@ static int m25p_probe(struct spi_device *spi)
         if (ret) {
             dev_err(&flash->spi->dev, "quad mode not supported\n");
             return ret;
-        }        
+        }
         if ((spi->mode & SPI_RX_QUAD) && (info->flags & M25P80_QUAD_READ)) {
             flash->flash_read = M25P80_QUAD;
-        }        
+        }
         if ((spi->mode & SPI_TX_QUAD) && (info->flags & M25P80_QUAD_WRITE)) {
             flash->flash_write = M25P80_QUAD;
         }
@@ -1239,7 +1241,7 @@ static int m25p_probe(struct spi_device *spi)
         printk("m25p80: Enable Dual Write Mode\n");
         flash->flash_write = M25P80_DUAL;
     }
-    
+
     /* Default commands */
     switch (flash->flash_read) {
         case M25P80_QUAD:
@@ -1258,10 +1260,10 @@ static int m25p_probe(struct spi_device *spi)
             dev_err(&flash->spi->dev, "No Read opcode defined\n");
             return -EINVAL;
     }
-    
+
     if(flash->flash_write & M25P80_QUAD)
         flash->program_opcode = OPCODE_QUAD_PP;
-    else 
+    else
         flash->program_opcode = OPCODE_PP;
 
 	if (info->addr_width)

@@ -890,13 +890,13 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
  #if defined(CONFIG_BOARD_DISP976)
 	{
 		.name = "uboot",
-		.size = 0x7E000,
+		.size = 0x70000,
 		.offset = 0,
 		.mask_flags = MTD_WRITEABLE,
 	},
 	{
 		.name = "uboot-env",
-		.size = 0x2000,
+		.size = 0x10000,
 		.offset = MTDPART_OFS_APPEND,
 	},
   #if defined(CONFIG_CRAMFS) || defined(CONFIG_SQUASHFS)
@@ -911,19 +911,23 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 		.size = 0x180000,
 		.offset = MTDPART_OFS_APPEND,
 	},
-  #else
-	/* in-kernel initramfs */
-	{
-		.name = "kernel",
-		.size = 0x780000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-  #endif /* CONFIG_CRAMFS || CONFIG_SQUASHFS */
 	{
 		.name = "userfs",
+		.size = MTDPARTS_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #else
+	{
+		.name = "kernel",
+		.size = 0x200000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "rootfs",
 		.size = MTDPART_SIZ_FULL,
 		.offset = MTDPART_OFS_APPEND,
 	},
+  #endif /* CONFIG_CRAMFS || CONFIG_SQUASHFS */
  #elif defined(CONFIG_BOARD_ETH2UART)
         {
                 .name = "kernel",
