@@ -903,7 +903,7 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 	/* compressed read-only rootfs */
 	{
 		.name = "kernel",
-		.size = 0x280000,
+		.size = 0x200000,
 		.offset = MTDPART_OFS_APPEND,
 	},
 	{
@@ -913,7 +913,7 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 	},
 	{
 		.name = "userfs",
-		.size = MTDPARTS_SIZ_FULL,
+		.size = MTDPART_SIZ_FULL,
 		.offset = MTDPART_OFS_APPEND,
 	},
   #else
@@ -964,7 +964,11 @@ static struct spi_board_info nuc970_spi0_board_info[] __initdata = {
 #ifdef CONFIG_MTD_M25P80
         {
                 .modalias = "m25p80",
+ #if defined(CONFIG_BOARD_DISP976)
+		.max_speed_hz = 30000000,
+ #else
                 .max_speed_hz = 15000000,
+ #endif
                 .bus_num = 0,
                 .chip_select = 0,       //use SS0
                 .platform_data = &nuc970_spi0_flash_data,
