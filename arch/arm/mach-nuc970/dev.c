@@ -916,7 +916,20 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 		.offset = MTDPART_OFS_APPEND,
 	},
+  #elif defined(CONFIG_BLK_DEV_INITRD)
+	/* RAMFS + JFFS2 */
+	{
+		.name = "kernel",
+		.size = 0x400000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "userfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
   #else
+	/* Boot from JFFS2 */
 	{
 		.name = "kernel",
 		.size = 0x200000,
