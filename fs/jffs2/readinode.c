@@ -680,7 +680,6 @@ static inline int read_direntry(struct jffs2_sb_info *c, struct jffs2_raw_node_r
 
 		err = jffs2_flash_read(c, (ref_offset(ref)) + read,
 				rd->nsize - already, &read, &fd->name[already]);
-			return -EIO;
 		if (unlikely(err)) {
 			JFFS2_ERROR("read remainder of name: error %d\n", err);
 			jffs2_free_full_dirent(fd);
