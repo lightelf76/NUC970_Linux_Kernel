@@ -242,6 +242,9 @@ static irqreturn_t nuc970_spi0_irq(int irq, void *dev)
 	unsigned int status, i, offset;
 	unsigned int count = hw->count, last;
 
+	status = __raw_readl(hw->regs + REG_CNTRL);
+	__raw_writel(status, hw->regs + REG_CNTRL);
+
 	hw->count += hw->pdata->txnum+1;
 
 	if (hw->rx) {
@@ -268,8 +271,6 @@ static irqreturn_t nuc970_spi0_irq(int irq, void *dev)
 		complete(&hw->done);
 	}
 
-	status = __raw_readl(hw->regs + REG_CNTRL);
-	__raw_writel(status, hw->regs + REG_CNTRL);
 
 	return IRQ_HANDLED;
 }
@@ -445,6 +446,7 @@ static int nuc970_spi0_setupxfer(struct spi_device *spi,
 	if (ret)
 		return ret;
 
+	nuc970_set_divider(hw);
 	nuc970_spi0_setup_txbitlen(hw, hw->pdata->txbitlen);
 	nuc970_tx_edge(hw, hw->pdata->txneg);
 	nuc970_rx_edge(hw, hw->pdata->rxneg);

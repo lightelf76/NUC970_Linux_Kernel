@@ -2320,6 +2320,22 @@ static const struct pinctrl_map nuc970_pinmap[] = {
 		.data.mux.function = "sd01",
 		.data.mux.group = "sd01_0_grp",
 	},
+        {
+                .dev_name = "nuc970-sdh",
+                .name = "sd01-PI",
+                .type = PIN_MAP_TYPE_MUX_GROUP,
+                .ctrl_dev_name = "pinctrl-nuc970",
+                .data.mux.function = "sd0",
+                .data.mux.group = "sd0_grp",
+        },
+        {
+                .dev_name = "nuc970-sdh",
+                .name = "sd01-PI",
+                .type = PIN_MAP_TYPE_MUX_GROUP,
+                .ctrl_dev_name = "pinctrl-nuc970",
+                .data.mux.function = "sd1",
+                .data.mux.group = "sd1_0_grp",
+        },
 	{
 		.dev_name = "nuc970-sdh",
 		.name = "sd01-PE",
