@@ -178,7 +178,7 @@ struct nuc970_pinctrl_group {
 	const unsigned func;
 };
 
-#if defined(CONFIG_BOARD_DISP976)
+#if defined(CONFIG_NUC970_ETH0_NO_MDC)
 /* No MDC/MDIO pins */
 static const unsigned emac0_pins[] = {0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
 #else
@@ -2320,6 +2320,22 @@ static const struct pinctrl_map nuc970_pinmap[] = {
 		.data.mux.function = "sd01",
 		.data.mux.group = "sd01_0_grp",
 	},
+        {
+                .dev_name = "nuc970-sdh",
+                .name = "sd01-PI",
+                .type = PIN_MAP_TYPE_MUX_GROUP,
+                .ctrl_dev_name = "pinctrl-nuc970",
+                .data.mux.function = "sd0",
+                .data.mux.group = "sd0_grp",
+        },
+        {
+                .dev_name = "nuc970-sdh",
+                .name = "sd01-PI",
+                .type = PIN_MAP_TYPE_MUX_GROUP,
+                .ctrl_dev_name = "pinctrl-nuc970",
+                .data.mux.function = "sd1",
+                .data.mux.group = "sd1_0_grp",
+        },
 	{
 		.dev_name = "nuc970-sdh",
 		.name = "sd01-PE",

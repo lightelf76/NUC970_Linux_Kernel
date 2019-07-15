@@ -274,12 +274,12 @@ void dump_regs(void)
 static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 {
 	struct nuc970_ctx *ctx = crypto_ablkcipher_ctx(crypto_ablkcipher_reqtfm(areq));
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
-	struct nuc970_aes_regs *aes_regs = ctx->aes_regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_aes_regs *aes_regs = ctx->aes_regs;
 	struct scatterlist   *in_sg, *out_sg;
 	int  i, req_len, dma_len, copy_len, offset;
 	int  in_sg_off, out_sg_off;
-	int  timeout = 100000;
+	unsigned long   timeout;
 
 	//printk("[%s],ctx=0x%x, chn=%d\n", __func__, (int)ctx, ctx->channel);
 	
@@ -287,6 +287,7 @@ static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 
 	spin_lock(&nuc970_crdev.aes_lock);
 	
+	crpt_regs->CRPT_INTEN |= (AESIEN | AESERRIEN);
 	crpt_regs->CRPT_AES_CTL = 0;
 	crpt_regs->CRPT_INTSTS = (AESIF | AESERRIF);
 
@@ -299,6 +300,23 @@ static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 	crpt_regs->CRPT_AES_CTL = ctx->keysize | ctx->mode | AES_INSWAP | AES_OUTSWAP |
 	                          AES_DMAEN | (ctx->channel << 24);
 
+	if (ctx->use_mtp_key)
+	{
+		//printk("AES using MTP key.\n");
+
+    	if (IS_ERR(clk_get(NULL, "mtpc"))) {
+        	printk("clk_get mtpc error!!\n");
+        	return -1;
+    	}
+		/* Enable MTP clock */
+    	clk_prepare(clk_get(NULL, "mtpc"));	
+    	clk_enable(clk_get(NULL, "mtpc"));
+		
+		MTP_Enable();
+
+		crpt_regs->CRPT_AES_CTL |= AES_EXTERNAL_KEY;
+	}
+
 	if (ctx->is_first_block)
 		ctx->is_first_block = 0;
 	else
@@ -306,7 +324,7 @@ static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 									
 	if (encrypt)
 		crpt_regs->CRPT_AES_CTL |= AES_ENCRYPT;
-	
+		
 	req_len = areq->nbytes;
 	in_sg = areq->src;
 	out_sg = areq->dst;
@@ -354,12 +372,12 @@ static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 		aes_regs->dst_addr = nuc970_crdev.aes_outbuf_dma_addr;
 
 		crpt_regs->CRPT_AES_CTL |= AES_START;
-		
-		while (((crpt_regs->CRPT_INTSTS & (AESIF|AESERRIF)) == 0) && (timeout-- > 0))
+
+		timeout = jiffies+100;
+		while (((crpt_regs->CRPT_INTSTS & (AESIF|AESERRIF)) == 0) && time_before(jiffies, timeout))
 		{
-			cpu_relax();
 		}
-		if (timeout == 0)
+		if (!time_before(jiffies, timeout))
 		{
 			printk("Crypto AES engine failed!\n");
 			spin_unlock(&nuc970_crdev.aes_lock);
@@ -388,9 +406,7 @@ static int nuc970_do_aes_crypt(struct ablkcipher_request *areq, u32 encrypt)
 			}
 		}	
 	}
-
 	spin_unlock(&nuc970_crdev.aes_lock);
-	
 	return 0;
 }
 
@@ -409,11 +425,11 @@ static int nuc970_aes_setkey(struct crypto_ablkcipher *cipher,
 {
 	struct nuc970_ctx  *ctx = crypto_ablkcipher_ctx(cipher);
 	u32 *flags = &cipher->base.crt_flags;
-	struct nuc970_aes_regs *aes_regs = ctx->aes_regs;
+	volatile struct nuc970_aes_regs *aes_regs = ctx->aes_regs;
 	int  i;
 
 	//printk("[%s],ctx=0x%x, chn=%d\n", __func__, (int)ctx, ctx->channel);
-
+	
 	switch (keylen) 
 	{
 		case AES_KEYSIZE_128:
@@ -429,7 +445,6 @@ static int nuc970_aes_setkey(struct crypto_ablkcipher *cipher,
 			break;
 			
 		case 1:
-			//printk("use_mtp_key = %d\n", *key);
 			if (*key == 1)
 				ctx->use_mtp_key = 1;
 			else
@@ -441,6 +456,9 @@ static int nuc970_aes_setkey(struct crypto_ablkcipher *cipher,
 			*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 			return -EINVAL;
 	}
+	
+	if (ctx->use_mtp_key)
+		return 0;
 
 	//printk("aes_regs = 0x%x\n", (u32)aes_regs);	
 	for (i = 0; i < keylen/4; i++)
@@ -497,15 +515,16 @@ static void nuc970_aes_exit(struct crypto_tfm *tfm)
 	spin_unlock(&nuc970_crdev.aes_lock);
 }
 
+
 static int nuc970_do_des_crypt(struct ablkcipher_request *areq, u32 encrypt)
 {
 	struct nuc970_ctx *ctx = crypto_ablkcipher_ctx(crypto_ablkcipher_reqtfm(areq));
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
-	struct nuc970_tdes_regs *tdes_regs = ctx->tdes_regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_tdes_regs *tdes_regs = ctx->tdes_regs;
 	struct scatterlist   *in_sg, *out_sg;
 	int  i, req_len, dma_len, copy_len, offset;
 	int  in_sg_off, out_sg_off;
-	int  timeout = 100000;
+	unsigned long   timeout;
 
 	//printk("[%s],ctx=0x%x, chn=%d\n", __func__, (int)ctx, ctx->channel);
 	
@@ -513,8 +532,9 @@ static int nuc970_do_des_crypt(struct ablkcipher_request *areq, u32 encrypt)
 
 	spin_lock(&nuc970_crdev.des_lock);
 	
+	crpt_regs->CRPT_INTEN |= (TDESIEN | TDESERRIEN);
+	
 	crpt_regs->CRPT_TDES_CTL = 0;
-	crpt_regs->CRPT_INTSTS = (TDESIF | TDESERRIF);
 
 	for (i = 0; i < 2; i++)
 	{
@@ -534,7 +554,6 @@ static int nuc970_do_des_crypt(struct ablkcipher_request *areq, u32 encrypt)
 									
 	if (encrypt)
 		crpt_regs->CRPT_TDES_CTL |= TDES_ENCRYPT;
-
 
 	req_len = areq->nbytes;
 	in_sg = areq->src;
@@ -559,7 +578,7 @@ static int nuc970_do_des_crypt(struct ablkcipher_request *areq, u32 encrypt)
 			copy_len = min((int)in_sg->length - in_sg_off, req_len);
 			if (DMA_BUFSZ - dma_len < copy_len)
 			    copy_len = DMA_BUFSZ - dma_len;
-		    
+			    
 		    memcpy((char *)nuc970_crdev.des_inbuf + dma_len, (char *)sg_virt(in_sg) + in_sg_off, copy_len);
 		    
 		    dma_len += copy_len;
@@ -574,26 +593,47 @@ static int nuc970_do_des_crypt(struct ablkcipher_request *areq, u32 encrypt)
 		}
 
 		/* 
-		 *  Execute AES encrypt/decrypt
+		 *  Execute DES encrypt/decrypt
 		 */
-	    //printk("dma_len = %d\n", dma_len);
 		tdes_regs->count = dma_len;
 		tdes_regs->src_addr = nuc970_crdev.des_inbuf_dma_addr;
 		tdes_regs->dst_addr = nuc970_crdev.des_outbuf_dma_addr;
-
-		crpt_regs->CRPT_TDES_CTL |= TDES_START;
 		
-		while (((crpt_regs->CRPT_INTSTS & (TDESIF|TDESERRIF)) == 0) && (timeout-- > 0))
+		for (i = 0; i < dma_len; i += 8)
 		{
-			cpu_relax();
+			int   do_len;
+			
+			if (dma_len - i < 8)
+				do_len = dma_len - i;
+			else
+				do_len = 8;
+	
+			tdes_regs->count = do_len;
+			crpt_regs->CRPT_INTSTS = (TDESIF|TDESERRIF);
+			crpt_regs->CRPT_TDES_CTL |= TDES_START;
+		
+			timeout = jiffies+10;
+			while (((crpt_regs->CRPT_INTSTS & (TDESIF|TDESERRIF)) == 0) && time_before(jiffies, timeout))
+			{
+			}
+
+			if (!time_before(jiffies, timeout))
+			{
+				printk("Time-out! Crypto DES/TDES engine failed!\n");
+				spin_unlock(&nuc970_crdev.des_lock);
+				return 1;
+			}
+			if (crpt_regs->CRPT_INTSTS & TDESERRIF)
+			{
+				printk("TDESERRIF!!\n");
+				spin_unlock(&nuc970_crdev.des_lock);
+				return 1;
+			}
+			
+			tdes_regs->src_addr += do_len;
+			tdes_regs->dst_addr += do_len;
+			crpt_regs->CRPT_TDES_CTL |= TDES_DMACSCAD;
 		}
-		if (timeout == 0)
-		{
-			printk("Crypto DES/TDES engine failed!\n");
-			spin_unlock(&nuc970_crdev.aes_lock);
-			return 1;
-		}
-		crpt_regs->CRPT_INTSTS = (TDESIF|TDESERRIF);
 		
 		/*
 		 *  Copy output data from DMA destination buffer
@@ -635,7 +675,7 @@ static int nuc970_des_setkey(struct crypto_ablkcipher *cipher,
 {
 	struct nuc970_ctx  *ctx = crypto_ablkcipher_ctx(cipher);
 	u32 *flags = &cipher->base.crt_flags;
-	struct nuc970_tdes_regs *tdes_regs = ctx->tdes_regs;
+	volatile struct nuc970_tdes_regs *tdes_regs = ctx->tdes_regs;
 	int  i;
 
 	//printk("[%s],ctx=0x%x, chn=%d\n", __func__, (int)ctx, ctx->channel);
@@ -685,6 +725,8 @@ static int nuc970_des_init(struct crypto_tfm *tfm)
 	
 	ctx->mode = cryp_alg->algomode;
 	ctx->channel = chn;
+	if (chn != 0)
+		printk("\n\nChannel is not 0!!\n\n");
 	ctx->tdes_regs = (struct nuc970_tdes_regs *)((u32)nuc970_crdev.regs + 0x208 + (0x40 * chn));
 	ctx->is_first_block = 1;
 
@@ -703,7 +745,6 @@ static void nuc970_des_exit(struct crypto_tfm *tfm)
 
 	spin_lock(&nuc970_crdev.des_lock);
 	nuc970_crdev.des_channels &= ~(1 << ctx->channel);
-	nuc970_crdev.regs->CRPT_TDES_CTL = TDES_STOP;
 	spin_unlock(&nuc970_crdev.des_lock);
 }
 
@@ -1233,7 +1274,7 @@ static int do_sha(struct ahash_request *req, int is_last)
 {
 	struct nuc970_ctx *ctx = crypto_tfm_ctx(req->base.tfm);
 	struct scatterlist   *in_sg;
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
 	int  req_len, dma_len;
 	int  timeout = 100000;
 
@@ -1302,7 +1343,7 @@ static int nuc970_sha_update(struct ahash_request *req)
 
 static int nuc970_sha_final(struct ahash_request *req)
 {
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile  struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
 
 	//printk("nuc970_sha_final - %d bytes\n", req->nbytes);
 
@@ -1326,7 +1367,7 @@ static int nuc970_hmac_sha_init(struct ahash_request *req, int is_hmac)
 {
 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
 	struct nuc970_ctx *ctx = crypto_tfm_ctx(req->base.tfm);
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
 	
 	crpt_regs->CRPT_HMAC_CTL = HMAC_STOP;
 	//printk("nuc970_sha_init: digest size: %d %s\n", crypto_ahash_digestsize(tfm), is_hmac ? "(HMAC)" : "");
@@ -1383,7 +1424,7 @@ static int nuc970_hmac_init(struct ahash_request *req)
 static int nuc970_hmac_setkey(struct crypto_ahash *tfm, const u8 *key, unsigned int keylen)
 {
 	struct nuc970_ctx *ctx = crypto_ahash_ctx(tfm);
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
 
 	//printk("[%s],keylen=%d\n", __func__, keylen);
 	
@@ -1802,7 +1843,7 @@ static int nuc970_crypto_remove(struct platform_device *pdev)
 
 static int nuc970_crypto_suspend(struct platform_device *pdev,pm_message_t state)
 {
-	struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
+	volatile struct nuc970_crypto_regs  *crpt_regs = nuc970_crdev.regs;
 	unsigned long  timeout;
 	
 	timeout = jiffies+200;   // 2 seconds time out
