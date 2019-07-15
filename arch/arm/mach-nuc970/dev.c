@@ -977,11 +977,7 @@ static struct spi_board_info nuc970_spi0_board_info[] __initdata = {
 #ifdef CONFIG_MTD_M25P80
         {
                 .modalias = "m25p80",
- #if defined(CONFIG_BOARD_DISP976)
-		.max_speed_hz = 30000000,
- #else
                 .max_speed_hz = 15000000,
- #endif
                 .bus_num = 0,
                 .chip_select = 0,       //use SS0
                 .platform_data = &nuc970_spi0_flash_data,
@@ -1058,7 +1054,7 @@ static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
 };
 #endif
 
-#else   //CONFIG_BOARD_TOMATO
+#else   //CONFIG_BOARD_TOMATO || CONFIG_BOARD_DISP976
 
 #ifdef CONFIG_MTD_M25P80
 static struct mtd_partition nuc970_spi1_flash_partitions[] = {

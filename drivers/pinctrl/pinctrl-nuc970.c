@@ -178,7 +178,7 @@ struct nuc970_pinctrl_group {
 	const unsigned func;
 };
 
-#if defined(CONFIG_BOARD_DISP976)
+#if defined(CONFIG_NUC970_ETH0_NO_MDC)
 /* No MDC/MDIO pins */
 static const unsigned emac0_pins[] = {0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
 #else
