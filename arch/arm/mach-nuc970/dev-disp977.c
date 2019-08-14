@@ -813,6 +813,10 @@ struct platform_device nuc970_device_audio_pcm = {
 /* I2C clients */
 static struct i2c_board_info __initdata nuc970_i2c_clients0[] =
 {
+#ifdef CONFIG_BOARD_DISP976
+	{I2C_BOARD_INFO("at24c02", 0x50),},
+	{I2C_BOARD_INFO("at24c02", 0x5F),},
+#endif
 
 #ifdef CONFIG_SND_SOC_NAU8822
 	{I2C_BOARD_INFO("nau8822", 0x1a),},
@@ -883,7 +887,61 @@ struct platform_device nuc970_device_i2c1 = {
 /* spi device, spi flash info */
 #ifdef CONFIG_MTD_M25P80
 static struct mtd_partition nuc970_spi0_flash_partitions[] = {
- #if defined(CONFIG_BOARD_ETH2UART)
+ #if defined(CONFIG_BOARD_DISP976)
+	{
+		.name = "uboot",
+		.size = 0x70000,
+		.offset = 0,
+		.mask_flags = MTD_WRITEABLE,
+	},
+	{
+		.name = "uboot-env",
+		.size = 0x10000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #if defined(CONFIG_CRAMFS) || defined(CONFIG_SQUASHFS)
+	/* compressed read-only rootfs */
+	{
+		.name = "kernel",
+		.size = 0x200000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "rootfs",
+		.size = 0x180000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "userfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #elif defined(CONFIG_BLK_DEV_INITRD)
+	/* RAMFS + JFFS2 */
+	{
+		.name = "kernel",
+		.size = 0x400000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "userfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #else
+	/* Boot from JFFS2 */
+	{
+		.name = "kernel",
+		.size = 0x200000,
+		.offset = MTDPART_OFS_APPEND,
+	},
+	{
+		.name = "rootfs",
+		.size = MTDPART_SIZ_FULL,
+		.offset = MTDPART_OFS_APPEND,
+	},
+  #endif /* CONFIG_CRAMFS || CONFIG_SQUASHFS */
+ #elif defined(CONFIG_BOARD_ETH2UART)
         {
                 .name = "kernel",
                 .size = 0x0800000,
@@ -982,7 +1040,7 @@ struct platform_device nuc970_device_spi0 = {
 
 #if defined(CONFIG_SPI_NUC970_P1) || defined(CONFIG_SPI_NUC970_P1_MODULE)
 /* spi device, spi flash info */
-#if defined(CONFIG_BOARD_TOMATO)
+#if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
 
 #ifdef CONFIG_SPI_SPIDEV
 static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
@@ -996,7 +1054,7 @@ static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
 };
 #endif
 
-#else   //CONFIG_BOARD_TOMATO
+#else   //CONFIG_BOARD_TOMATO || CONFIG_BOARD_DISP976
 
 #ifdef CONFIG_MTD_M25P80
 static struct mtd_partition nuc970_spi1_flash_partitions[] = {
