@@ -523,7 +523,7 @@ choice
 
 	config SPI_NUC970_P0_SS1_PB0
 		bool "Use SS1 (PB0)"
-    config SPI_NUC970_P0_SS1_PH12
+	config SPI_NUC970_P0_SS1_PH12
 		bool "Use SS1 (PH12)"
 
 endchoice
@@ -547,6 +547,8 @@ choice
 		bool "Normal mode"
 	config SPI_NUC970_P1_QUAD
 		bool "Quad mode"
+	config SPI_NUC970_P1_DO_ONLY
+		bool "Only DO pin"
 endchoice
 
 choice
@@ -554,17 +556,30 @@ choice
 	default SPI_NUC970_P1_PB
 	depends on SPI_NUC970_P1
 
-    config SPI_NUC970_P1_PB
+	config SPI_NUC970_P1_PB
 		bool "Port B"
 	config SPI_NUC970_P1_PI
 		bool "Port I"
 endchoice
 
+config SPI_NUC970_P1_FIQ
+	bool "Use FIQ transfer"
+	depends on SPI_NUC970_P1
+	select NUC970_FIQ
+	default n
+	help
+	  Use FIQ interrupt for real-time transfer
+
+
 config SPI_NUC970_P1_SS1
 	tristate "SPI1 enable pin for the second chip select"
 	depends on SPI_NUC970_P1
-    help
+	help
 	  Enable the second chip select pin for SPI1.
+
+
+
+
 
 #
 # Add new SPI master controllers in alphabetical order above this line

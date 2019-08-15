@@ -178,12 +178,8 @@ struct nuc970_pinctrl_group {
 	const unsigned func;
 };
 
-#if defined(CONFIG_NUC970_ETH0_NO_MDC)
-/* No MDC/MDIO pins */
-static const unsigned emac0_pins[] = {0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
-#else
 static const unsigned emac0_pins[] = {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59}; // Port F
-#endif
+
 static const unsigned emac1_pins[] = {0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B}; // Port E
 static const unsigned pps0_pin[] = {0x5E};
 static const unsigned pps1_pin[] = {0x4D};
@@ -207,11 +203,7 @@ static const unsigned kpi_7_pins[] = {0x7C, 0x7D, 0x7E, 0x7F}; // 8 col
 static const unsigned kpi_8_pins[] = {0x04, 0x05, 0x6}; // 3 row
 
 
-#if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
-static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
-#else
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};
-#endif
 static const unsigned sd1_0_pins[] = {0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8C, 0x8D}; // Port I
 static const unsigned sd1_1_pins[] = {0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49}; // Port E
 static const unsigned sd1_2_pins[] = {0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D}; // Port H
@@ -273,12 +265,8 @@ static const unsigned uart8_1_pins[] = {0x4C, 0x4D}; // rts, cts
 static const unsigned uart8_2_pins[] = {0x7C, 0x7D}; // tx, rx
 static const unsigned uart8_3_pins[] = {0x7E, 0x7F}; // rts, cts
 static const unsigned uart8_4_pins[] = {0x8C, 0x8D}; // tx, rx
-#if defined (CONFIG_BOARD_DISP976)
-/* Only RTS pin used */
-static const unsigned uart8_5_pins[] = {0x8E}; // rts
-#else
 static const unsigned uart8_5_pins[] = {0x8E, 0x8F}; // rts, cts
-#endif
+
 static const unsigned uart9_0_pins[] = {0x3B, 0x3C}; // tx, rx
 static const unsigned uart9_1_pins[] = {0x3E, 0x3F}; // tx, rx
 static const unsigned uart9_2_pins[] = {0x72, 0x73}; // tx, rx
@@ -299,16 +287,14 @@ static const unsigned spi0_0_pins[] = {0x16, 0x17, 0x18, 0x19};
 static const unsigned spi0_1_pins[] = {0x1A, 0x1B}; // quad
 static const unsigned spi0_2_pins[] = {0x10}; // ss1
 static const unsigned spi0_3_pins[] = {0x7C}; // ss1
+
 static const unsigned spi1_0_pins[] = {0x1C, 0x1D, 0x1E, 0x1F};
 static const unsigned spi1_1_pins[] = {0x11}; // ss1
 static const unsigned spi1_2_pins[] = {0x64, 0x65}; // quad
 static const unsigned spi1_3_pins[] = {0x7D}; // ss1
-#if defined (CONFIG_BOARD_DISP976)
-/* Only DO pin used */
-static const unsigned spi1_4_pins[] = {0x87};
-#else
 static const unsigned spi1_4_pins[] = {0x85, 0x86, 0x87, 0x88};
-#endif
+static const unsigned spi1_5_pins[] = {0x1E}; // data out
+static const unsigned spi1_6_pins[] = {0x87}; // data out
 
 static const unsigned can0_0_pins[] = {0x1A, 0x1B}; // Port B
 static const unsigned can0_1_pins[] = {0x72, 0x73}; // Port H
@@ -1003,6 +989,18 @@ static const struct nuc970_pinctrl_group nuc970_pinctrl_groups[] = {
 		.func = 0xB,
 	},
 	{
+		.name = "spi1_5_grp",
+		.pins = spi1_5_pins,
+		.num_pins = ARRAY_SIZE(spi1_5_pins),
+		.func = 0xB,
+	},
+	{
+		.name = "spi1_6_grp",
+		.pins = spi1_6_pins,
+		.num_pins = ARRAY_SIZE(spi1_6_pins),
+		.func = 0xB,
+	},
+	{
 		.name = "can0_0_grp",
 		.pins = can0_0_pins,
 		.num_pins = ARRAY_SIZE(can0_0_pins),
@@ -1460,6 +1458,7 @@ static const char * const spi0_ss1_groups[] = {"spi0_2_grp", "spi0_3_grp"};
 static const char * const spi1_groups[] = {"spi1_0_grp", "spi1_4_grp"};
 static const char * const spi1_quad_groups[] = {"spi1_2_grp"};
 static const char * const spi1_ss1_groups[] = {"spi1_1_grp", "spi1_3_grp"};
+static const char * const spi1_do_only_groups[] = {"spi1_5_grp", "spi1_6_grp"};
 static const char * const can0_groups[] = {"can0_0_grp", "can0_1_grp", "can0_2_grp"};
 static const char * const can1_groups[] = {"can1_grp"};
 static const char * const pwm0_groups[] = {"pwm0_0_grp", "pwm0_1_grp", "pwm0_2_grp", "pwm0_3_grp"};
@@ -1756,6 +1755,11 @@ static const struct nuc970_pmx_func nuc970_functions[] = {
 		.name = "spi1_ss1",
 		.groups = spi1_ss1_groups,
 		.num_groups = ARRAY_SIZE(spi1_ss1_groups),
+	},
+	{
+		.name = "spi1_do_only",
+		.groups = spi1_do_only_groups,
+		.num_groups = ARRAY_SIZE(spi1_do_only_groups),
 	},
 	{
 		.name = "can0",
@@ -3176,6 +3180,22 @@ static const struct pinctrl_map nuc970_pinmap[] = {
 		.ctrl_dev_name = "pinctrl-nuc970",
 		.data.mux.function = "spi1_ss1",
 		.data.mux.group = "spi1_3_grp",
+	},
+	{
+		.dev_name = "nuc970-spi1",
+		.name = "spi1-do-only-PB",
+		.type = PIN_MAP_TYPE_MUX_GROUP,
+		.ctrl_dev_name = "pinctrl-nuc970",
+		.data.mux.function = "spi1_do_only",
+		.data.mux.group = "spi1_5_grp",
+	},
+	{
+		.dev_name = "nuc970-spi1",
+		.name = "spi1-do-only-PI",
+		.type = PIN_MAP_TYPE_MUX_GROUP,
+		.ctrl_dev_name = "pinctrl-nuc970",
+		.data.mux.function = "spi1_do_only",
+		.data.mux.group = "spi1_6_grp",
 	},
 	{
 		.dev_name = "nuc970-can0",

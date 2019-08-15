@@ -42,7 +42,11 @@ obj-$(CONFIG_SPI_MPC52xx)		+= spi-mpc52xx.o
 obj-$(CONFIG_SPI_MXS)			+= spi-mxs.o
 obj-$(CONFIG_SPI_NUC900)		+= spi-nuc900.o
 obj-$(CONFIG_SPI_NUC970_P0)		+= spi-nuc970-p0.o
+ifeq ($(CONFIG_SPI_NUC970_P1_FIQ),y)
+obj-$(CONFIG_SPI_NUC970_P1)		+= spi-nuc970-p1-fiq.o
+else
 obj-$(CONFIG_SPI_NUC970_P1)		+= spi-nuc970-p1.o
+endif
 obj-$(CONFIG_SPI_OC_TINY)		+= spi-oc-tiny.o
 obj-$(CONFIG_SPI_OCTEON)		+= spi-octeon.o
 obj-$(CONFIG_SPI_OMAP_UWIRE)		+= spi-omap-uwire.o
