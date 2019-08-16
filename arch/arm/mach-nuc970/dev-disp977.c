@@ -306,17 +306,17 @@ static struct platform_device nuc970_serial_device10 = {
 static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	/* AUO G057QN01V2 320x240 TFT Panel , 16bits */
 	[0] = {
-#ifdef CONFIG_FB_SRCFMT_RGB565
+    #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x00a000a0,
-#else
+    #else
 		.type		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 16,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x01400140,
-#endif /* CONFIG_FB_SRCFMT_RGB565 */
+    #endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 320,
 		.height		= 240,
 		.xres		= 320,
@@ -333,17 +333,17 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	},
 	[1] = {
 	/* AUO G043FW01V0 480x272, 16bits */
-#ifdef CONFIG_FB_SRCFMT_RGB565
+    #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type 		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x00F000F0,
-#else
+    #else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x01E001E0,
-#endif /* CONFIG_FB_SRCFMT_RGB565 */
+    #endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 480,
 		.height		= 272,
 		.xres		= 480,
@@ -360,17 +360,17 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	},
 	/* AUO G057VN01V2 640x480 TFT Panel, 16bits */
 	[2] = {
-#ifdef CONFIG_FB_SRCFMT_RGB565
+    #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type 		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01400140,
-#else
+    #else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x02800280,
-#endif /* CONFIG_FB_SRCFMT_RGB565 */
+    #endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 640,
 		.height		= 480,
 		.xres		= 640,
@@ -387,17 +387,17 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	},
 	/* TIANMA TM070RDH13 800x480 TFT Panel , 16bits */
 	[3] = {
-#ifdef CONFIG_FB_SRCFMT_RGB565
+    #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01900190,
-#else
+    #else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x03200320,
-#endif
+    #endif
 		.width		= 800,
 		.height		= 480,
 		.xres		= 800,
@@ -412,19 +412,20 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
+#if 0
 	/* TIANMA TM097TDH01V2 1024x768 TFT Panel, 16bits */
 	[4] = {
-#ifdef CONFIG_FB_SRCFMT_RGB565
+    #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x02000200,
-#else
+    #else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x04000400,
-#endif
+    #endif
 		.width		= 1024,
 		.height		= 768,
 		.xres		= 1024,
@@ -439,14 +440,15 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
+#endif /* if 0 */
 };
 
 static struct nuc970fb_mach_info nuc970fb_fb_info = {
 	.displays		= &nuc970fb_lcd_info[0],
 	.num_displays		= ARRAY_SIZE(nuc970fb_lcd_info),
-	.default_display	= 0,
-        .gpio_blen          = NUC970_PG3,
-        .gpio_lcs           = NUC970_PG2,
+	.default_display	= 2,
+        .gpio_blen		= NUC970_PG3,
+        .gpio_lcs		= NUC970_PG2,
 };
 
 static struct resource nuc970fb_lcd_resource[] = {
@@ -822,8 +824,8 @@ static struct mtd_partition nuc970_spi0_flash_partitions[] = {
 	},
 	{
 		.name = "uboot-env",
-		.size = 0x1F0000,
-		.offset = MTDPART_OFS_APPEND,
+		.size = 0x10000,
+		.offset = 0x1F0000,
 	},
 };
 static struct flash_platform_data nuc970_spi0_flash_data = {
@@ -1116,7 +1118,7 @@ static struct plat_nuc970serial_port nuc970_scuart_data[] = {
 
 #if defined(CONFIG_NUC970_SCUART0)
 struct platform_device nuc970_device_sc0 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 0,
 	.dev		  	= {
 		.platform_data	= &nuc970_scuart_data[0],
@@ -1126,7 +1128,7 @@ struct platform_device nuc970_device_sc0 = {
 
 #if defined(CONFIG_NUC970_SCUART1)
 struct platform_device nuc970_device_sc1 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 1,
 	.dev			= {
 		.platform_data	= &nuc970_scuart_data[1],
@@ -1153,7 +1155,7 @@ static struct resource nuc970_sc0_resource[] = {
         },
 };
 struct platform_device nuc970_device_sc0 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 0,
 	.num_resources	  = ARRAY_SIZE(nuc970_sc0_resource),
 	.resource	  = nuc970_sc0_resource,
@@ -1175,7 +1177,7 @@ static struct resource nuc970_sc1_resource[] = {
         },
 };
 struct platform_device nuc970_device_sc1 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 1,
 	.num_resources	  = ARRAY_SIZE(nuc970_sc1_resource),
 	.resource	  = nuc970_sc1_resource,

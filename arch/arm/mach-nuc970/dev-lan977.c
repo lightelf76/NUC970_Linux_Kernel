@@ -304,42 +304,72 @@ static struct platform_device nuc970_serial_device10 = {
 /* LCD controller*/
 #if defined(CONFIG_FB_NUC970) || defined(CONFIG_FB_NUC970_MODULE)
 static struct nuc970fb_display nuc970fb_lcd_info[] = {
-#ifdef CONFIG_A025DL02_320X240
-	/* AUO A035QN02V0 320x240 TFT Panel , 18bits*/
-	[0] = {
-		.type		= LCM_DCCS_VA_SRC_RGB565,
-		.width		= 320,
-		.height		= 240,
-		.xres		= 320,
-		.yres		= 240,
-		.bpp		= 16,
-		.pixclock	= 4000000,
-		.left_margin	= 10,
-		.right_margin   = 54,
-		.hsync_len	= 10,
-		.upper_margin	= 2,
-		.lower_margin	= 4,
-		.vsync_len	= 1,
-		.dccs		= 0x0e00041a,
-		.devctl		= 0x060800c0,
-		.fbctrl		= 0x00a000a0,
-		.scale		= 0x04000400,
-	},
-#endif
-
-#ifdef CONFIG_G057VN01_640X480
+	/* AUO G057QN01V2 320x240 TFT Panel , 16bits */
 	[0] = {
 #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x01400140,
+		.fbctrl		= 0x00a000a0,
 #else
-		/* defaults to RGB888 */
+		.type		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 16,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x01400140,
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
+		.width		= 320,
+		.height		= 240,
+		.xres		= 320,
+		.yres		= 240,
+		.pixclock	= 6400000,
+		.left_margin	= 16,
+		.right_margin   = 74,
+		.hsync_len	= 10,
+		.upper_margin	= 8,
+		.lower_margin	= 16,
+		.vsync_len	= 1,
+		.devctl		= 0x050800c0,
+		.scale		= 0x04000400,
+	},
+	[1] = {
+	/* AUO G043FW01V0 480x272, 16bits */
+#ifdef CONFIG_FB_SRCFMT_RGB565
+		.type 		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x00F000F0,
+#else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
-                .fbctrl		= 0x02800280,
+		.fbctrl		= 0x01E001E0,
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
+		.width		= 480,
+		.height		= 272,
+		.xres		= 480,
+		.yres		= 272,
+		.pixclock	= 9000000,
+		.left_margin	= 2,
+		.right_margin	= 44,
+		.hsync_len	= 40,
+		.upper_margin	= 12,
+		.lower_margin	= 12,
+		.vsync_len	= 10,
+		.devctl		= 0x050000c0,
+		.scale		= 0x04000400,
+	},
+	/* AUO G057VN01V2 640x480 TFT Panel, 16bits */
+	[2] = {
+#ifdef CONFIG_FB_SRCFMT_RGB565
+		.type 		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x01400140,
+#else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x02800280,
 #endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 640,
 		.height		= 480,
@@ -352,119 +382,63 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.upper_margin	= 35,
 		.lower_margin	= 10,
 		.vsync_len	= 3,
-
-#ifdef CONFIG_FB_LCD_24BIT_PIN
-                .devctl		= 0x070000c0,
-#elif defined(CONFIG_FB_LCD_18BIT_PIN)
-                .devctl		= 0x060000c0,
-#else
-		/* defaults to 16BIT_PIN */
-                .devctl		= 0x050000c0,
-#endif
+		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-#endif /* CONFIG_G057VN01_640X480 */
-
-#ifdef CONFIG_FW070TFT_800X480
-	/* FW070TFT 800x480 TFT Panel , 24bits*/
-	[0] = {
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.type		= LCM_DCCS_VA_SRC_RGB888,
-		.bpp		= 32,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
+	/* TIANMA TM070RDH13 800x480 TFT Panel , 16bits */
+	[3] = {
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
-#endif
-		.width		= 800,
-		.height		= 480,
-		.xres		= 800,
-		.yres		= 480,
-		.pixclock	= 32000000,
-		.left_margin	= 40,
-		.right_margin   = 196,
-		.hsync_len		= 20,
-		.upper_margin	= 23,
-		.lower_margin	= 19,
-		.vsync_len		= 3,
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.dccs		= 0x0e00020a,
-                .fbctrl		= 0x03200320,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01900190,
-#endif
-#ifdef CONFIG_FB_LCD_16BIT_PIN
-                .devctl		= 0x050000c0,
-#elif defined(CONFIG_FB_LCD_18BIT_PIN)
-                .devctl		= 0x060000c0,
-#elif defined(CONFIG_FB_LCD_24BIT_PIN)
-                .devctl		= 0x070000c0,
-#endif
-		.scale		= 0x04000400,
-	},
-#endif
-
-#ifdef CONFIG_E50A2V1_800X480
-	/* E50A2V1 800x480 TFT Panel , 24bits*/
-	[0] = {
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.type		= LCM_DCCS_VA_SRC_RGB888,
+#else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
-		.type   = LCM_DCCS_VA_SRC_RGB565,
-		.bpp		= 16,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x03200320,
 #endif
 		.width		= 800,
 		.height		= 480,
 		.xres		= 800,
 		.yres		= 480,
-		.pixclock	= 20000000,
-		.left_margin	= 88,
-		.right_margin   = 40,
-		.hsync_len		= 48,
-		.upper_margin	= 32,
-		.lower_margin	= 13,
-		.vsync_len		= 3,
-#ifdef CONFIG_FB_SRCFMT_RGB888
-		.dccs		= 0x0e00020a,
-                .fbctrl		= 0x03200320,
-#elif defined(CONFIG_FB_SRCFMT_RGB565)
-		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x01900190,
-#endif
-#ifdef CONFIG_FB_LCD_16BIT_PIN
-                .devctl		= 0x050000c0,
-#elif defined(CONFIG_FB_LCD_18BIT_PIN)
-                .devctl		= 0x060000c0,
-#elif defined(CONFIG_FB_LCD_24BIT_PIN)
-                .devctl		= 0x070000c0,
-#endif
+		.pixclock	= 30000000,
+		.left_margin	= 46,
+		.right_margin	= 210,
+		.hsync_len	= 20,
+		.upper_margin	= 23,
+		.lower_margin	= 22,
+		.vsync_len	= 3,
+		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-#endif
-
-#ifdef CONFIG_ILI9431_MPU80_240x320
-	/* ILI9431 240x320 MPU Panel , 16bits*/
-	[0] = {
-		.type   = LCM_DCCS_VA_SRC_RGB565,
+	/* TIANMA TM097TDH01V2 1024x768 TFT Panel, 16bits */
+	[4] = {
+#ifdef CONFIG_FB_SRCFMT_RGB565
+		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
-		.width		= 240,
-		.height		= 320,
-		.xres		= 240,
-		.yres		= 320,
-		.pixclock	= 6000000,
-		.left_margin	= 6,
-		.right_margin   = 10,
-		.hsync_len		= 2,
-		.upper_margin	= 27,
-		.lower_margin	= 5,
-		.vsync_len		= 11,
-		.dccs		= 0x0e000400,
-		.fbctrl		= 0x00780078,
-                .devctl		= 0xC50000E0,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x02000200,
+#else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x04000400,
+#endif
+		.width		= 1024,
+		.height		= 768,
+		.xres		= 1024,
+		.yres		= 768,
+		.pixclock	= 65000000,
+		.left_margin	= 160,
+		.right_margin	= 160,
+		.hsync_len	= 20,
+		.upper_margin	= 23,
+		.lower_margin	= 15,
+		.vsync_len	= 3,
+		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-#endif
 };
 
 static struct nuc970fb_mach_info nuc970fb_fb_info = {
@@ -767,61 +741,15 @@ static struct platform_device nuc970_device_gdma = {
 };
 #endif
 
-
-/* AUDIO controller*/
-#if defined(CONFIG_SND_SOC_NUC970) || defined(CONFIG_SND_SOC_NUC970_MODULE)
-static u64 nuc970_device_audio_dmamask = -1;
-static struct resource nuc970_i2s_resource[] = {
-        [0] = {
-                .start = NUC970_PA_ACTL,
-                .end   = NUC970_PA_ACTL + NUC970_SZ_ACTL - 1,
-                .flags = IORESOURCE_MEM,
-        },
-        [1] = {
-                .start = IRQ_ACTL,
-                .end   = IRQ_ACTL,
-                .flags = IORESOURCE_IRQ,
-        }
-
-};
-
-struct platform_device nuc970_device_audio_i2s = {
-        .name		= "nuc970-audio-i2s",
-        .id		= -1,
-        .num_resources	= ARRAY_SIZE(nuc970_i2s_resource),
-        .resource	= nuc970_i2s_resource,
-        .dev              = {
-                .dma_mask               = &nuc970_device_audio_dmamask,
-                .coherent_dma_mask      = -1,
-        }
-};
-
-struct platform_device nuc970_device_audio = {
-	.name		= "nuc970-audio",
-	.id		= -1,
-};
-
-struct platform_device nuc970_device_audio_pcm = {
-	.name		= "nuc970-audio-pcm",
-	.id		= 0,
-};
-#endif
-
 /* I2C */
 #if defined(CONFIG_I2C_BUS_NUC970_P0) || defined(CONFIG_I2C_BUS_NUC970_P0_MODULE)
 // port 0
 /* I2C clients */
 static struct i2c_board_info __initdata nuc970_i2c_clients0[] =
 {
-#ifdef CONFIG_BOARD_DISP976
 	{I2C_BOARD_INFO("at24c02", 0x50),},
-	{I2C_BOARD_INFO("at24c02", 0x5F),},
-#endif
-
-#ifdef CONFIG_SND_SOC_NAU8822
-	{I2C_BOARD_INFO("nau8822", 0x1a),},
-#endif
 };
+
 static struct resource nuc970_i2c0_resource[] = {
         [0] = {
                 .start = NUC970_PA_I2C0,
@@ -885,119 +813,35 @@ struct platform_device nuc970_device_i2c1 = {
 /* SPI */
 #if defined(CONFIG_SPI_NUC970_P0) || defined(CONFIG_SPI_NUC970_P0_MODULE)
 /* spi device, spi flash info */
-#ifdef CONFIG_MTD_M25P80
 static struct mtd_partition nuc970_spi0_flash_partitions[] = {
- #if defined(CONFIG_BOARD_DISP976)
 	{
 		.name = "uboot",
-		.size = 0x70000,
+		.size = 0x80000,
 		.offset = 0,
 		.mask_flags = MTD_WRITEABLE,
 	},
 	{
 		.name = "uboot-env",
 		.size = 0x10000,
-		.offset = MTDPART_OFS_APPEND,
+		.offset = 0x1F0000,
 	},
-  #if defined(CONFIG_CRAMFS) || defined(CONFIG_SQUASHFS)
-	/* compressed read-only rootfs */
-	{
-		.name = "kernel",
-		.size = 0x200000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-	{
-		.name = "rootfs",
-		.size = 0x180000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-	{
-		.name = "userfs",
-		.size = MTDPART_SIZ_FULL,
-		.offset = MTDPART_OFS_APPEND,
-	},
-  #elif defined(CONFIG_BLK_DEV_INITRD)
-	/* RAMFS + JFFS2 */
-	{
-		.name = "kernel",
-		.size = 0x400000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-	{
-		.name = "userfs",
-		.size = MTDPART_SIZ_FULL,
-		.offset = MTDPART_OFS_APPEND,
-	},
-  #else
-	/* Boot from JFFS2 */
-	{
-		.name = "kernel",
-		.size = 0x200000,
-		.offset = MTDPART_OFS_APPEND,
-	},
-	{
-		.name = "rootfs",
-		.size = MTDPART_SIZ_FULL,
-		.offset = MTDPART_OFS_APPEND,
-	},
-  #endif /* CONFIG_CRAMFS || CONFIG_SQUASHFS */
- #elif defined(CONFIG_BOARD_ETH2UART)
-        {
-                .name = "kernel",
-                .size = 0x0800000,
-                .offset = 0x1000000,
-        },
-        {
-                .name = "rootfs",
-                .size = 0x0800000,
-                .offset = 0x1800000,
-        },
- #else
-        {
-                .name = "kernel",
-                .size = 0x0800000,
-                .offset = 0,
-        },
-        {
-                .name = "rootfs",
-                .size = 0x0800000,
-                .offset = 0x0800000,
-        },
- #endif
 };
 static struct flash_platform_data nuc970_spi0_flash_data = {
         .name = "m25p80",
         .parts =  nuc970_spi0_flash_partitions,
         .nr_parts = ARRAY_SIZE(nuc970_spi0_flash_partitions),
-        .type = "w25q128",
+        .type = "at25sf161",
 };
-#endif
 
 static struct spi_board_info nuc970_spi0_board_info[] __initdata = {
-#ifdef CONFIG_MTD_M25P80
         {
                 .modalias = "m25p80",
                 .max_speed_hz = 18750000,
                 .bus_num = 0,
                 .chip_select = 0,       //use SS0
                 .platform_data = &nuc970_spi0_flash_data,
- #if defined(CONFIG_SPI_NUC970_P0_NORMAL)
                 .mode = (SPI_MODE_0 | SPI_RX_DUAL | SPI_TX_DUAL),
- #elif defined(CONFIG_SPI_NUC970_P0_QUAD)
-                .mode = (SPI_MODE_0 | SPI_TX_QUAD | SPI_RX_QUAD),
- #endif
         },
-#endif
-
-#ifdef CONFIG_SPI_SPIDEV
-        {
-                .modalias = "spidev",
-                .max_speed_hz = 18750000,
-                .bus_num = 0,
-                .chip_select = 1,       //use SS1
-                .mode = SPI_MODE_0,
-        },
-#endif
 };
 
 static struct nuc970_spi_info nuc970_spi0_platform_data = {
@@ -1030,19 +874,14 @@ struct platform_device nuc970_device_spi0 = {
         .id		  = -1,
         .num_resources	  = ARRAY_SIZE(nuc970_spi0_resource),
         .resource	  = nuc970_spi0_resource,
-#if defined(CONFIG_MTD_M25P80) || defined(CONFIG_SPI_SPIDEV)
         .dev		= {
                 .platform_data = &nuc970_spi0_platform_data,
     }
-#endif
 };
 #endif
 
 #if defined(CONFIG_SPI_NUC970_P1) || defined(CONFIG_SPI_NUC970_P1_MODULE)
 /* spi device, spi flash info */
-#if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_BOARD_DISP976)
-
-#ifdef CONFIG_SPI_SPIDEV
 static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
         {
                 .modalias = "spidev",
@@ -1052,49 +891,7 @@ static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
                 .mode = SPI_MODE_0,
         },
 };
-#endif
 
-#else   //CONFIG_BOARD_TOMATO || CONFIG_BOARD_DISP976
-
-#ifdef CONFIG_MTD_M25P80
-static struct mtd_partition nuc970_spi1_flash_partitions[] = {
-        {
-                .name = "SPI flash",
-                .size = 0x0200000,
-                .offset = 0,
-        },
-};
-
-static struct flash_platform_data nuc970_spi1_flash_data = {
-        .name = "m25p80",
-        .parts =  nuc970_spi1_flash_partitions,
-        .nr_parts = ARRAY_SIZE(nuc970_spi1_flash_partitions),
-        .type = "en25qh16",
-};
-#endif
-
-static struct spi_board_info nuc970_spi1_board_info[] __initdata = {
-#ifdef CONFIG_MTD_M25P80
-        {
-                .modalias = "m25p80",
-                .max_speed_hz = 18750000,
-                .bus_num = 1,
-                .chip_select = 0,       //use SS0
-                .platform_data = &nuc970_spi1_flash_data,
-                .mode = SPI_MODE_0,
-        },
-#endif
-#ifdef CONFIG_SPI_SPIDEV
-        {
-                .modalias = "spidev",
-                .max_speed_hz = 18750000,
-                .bus_num = 1,
-                .chip_select = 1,       //use SS1
-                .mode = SPI_MODE_0,
-        },
-#endif
-};
-#endif
 
 static struct nuc970_spi_info nuc970_spi1_platform_data = {
         .num_cs		= 2,
@@ -1126,70 +923,8 @@ struct platform_device nuc970_device_spi1 = {
         .id		  = -1,
         .num_resources	  = ARRAY_SIZE(nuc970_spi1_resource),
         .resource	  = nuc970_spi1_resource,
-#if defined(CONFIG_MTD_M25P80) || defined(CONFIG_SPI_SPIDEV)
         .dev		= {
                 .platform_data = &nuc970_spi1_platform_data,
-		}
-#endif
-};
-#endif
-
-#if defined(CONFIG_KEYBOARD_NUC970) || defined(CONFIG_KEYBOARD_NUC970_MODULE)
-static int nuc970_keymap[] = {
-	KEY(0, 0, KEY_A),	KEY(0, 1, KEY_B),
-	KEY(0, 2, KEY_C),	KEY(0, 3, KEY_D),
-	KEY(0, 4, KEY_E),	KEY(0, 5, KEY_F),
-	KEY(0, 6, KEY_G),	KEY(0, 7, KEY_H),
-
-	KEY(1, 0, KEY_I),	KEY(1, 1, KEY_J),
-	KEY(1, 2, KEY_K),	KEY(1, 3, KEY_L),
-	KEY(1, 4, KEY_M),	KEY(1, 5, KEY_N),
-	KEY(1, 6, KEY_O),	KEY(1, 7, KEY_P),
-
-	KEY(2, 0, KEY_Q),	KEY(2, 1, KEY_R),
-	KEY(2, 2, KEY_S),	KEY(2, 3, KEY_T),
-	KEY(2, 4, KEY_U),	KEY(2, 5, KEY_V),
-	KEY(2, 6, KEY_W),	KEY(2, 7, KEY_X),
-
-	KEY(3, 0, KEY_Y),	KEY(3, 1, KEY_Z),
-	KEY(3, 2, KEY_1),	KEY(3, 3, KEY_2),
-	KEY(3, 4, KEY_3),	KEY(3, 5, KEY_4),
-	KEY(3, 6, KEY_5),	KEY(3, 7, KEY_6),
-};
-
-static struct matrix_keymap_data nuc970_map_data = {
-	.keymap			= nuc970_keymap,
-	.keymap_size	= ARRAY_SIZE(nuc970_keymap),
-};
-
-static struct nuc970_keypad_platform_data nuc970_keypad_info = {
-		.keymap_data	= &nuc970_map_data,
-        .prescale		= 0x80,
-        .debounce		= 0x8,
-};
-
-
-static struct resource nuc970_kpi_resource[] = {
-	[0] = {
-			.start = NUC970_PA_KPI,
-			.end   = NUC970_PA_KPI + NUC970_SZ_KPI - 1,
-			.flags = IORESOURCE_MEM,
-	},
-	[1] = {
-			.start = IRQ_KPI,
-			.end   = IRQ_KPI,
-			.flags = IORESOURCE_IRQ,
-	}
-};
-
-struct platform_device nuc970_device_kpi = {
-        .name		  = "nuc970-kpi",
-        .id		  = -1,
-        .num_resources	  = ARRAY_SIZE(nuc970_kpi_resource),
-        .resource	  = nuc970_kpi_resource,
-
-		.dev		= {
-                .platform_data = &nuc970_keypad_info,
 		}
 };
 #endif
@@ -1381,7 +1116,7 @@ static struct plat_nuc970serial_port nuc970_scuart_data[] = {
 
 #if defined(CONFIG_NUC970_SCUART0)
 struct platform_device nuc970_device_sc0 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 0,
 	.dev		  	= {
 		.platform_data	= &nuc970_scuart_data[0],
@@ -1391,7 +1126,7 @@ struct platform_device nuc970_device_sc0 = {
 
 #if defined(CONFIG_NUC970_SCUART1)
 struct platform_device nuc970_device_sc1 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 1,
 	.dev			= {
 		.platform_data	= &nuc970_scuart_data[1],
@@ -1418,7 +1153,7 @@ static struct resource nuc970_sc0_resource[] = {
         },
 };
 struct platform_device nuc970_device_sc0 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 0,
 	.num_resources	  = ARRAY_SIZE(nuc970_sc0_resource),
 	.resource	  = nuc970_sc0_resource,
@@ -1440,7 +1175,7 @@ static struct resource nuc970_sc1_resource[] = {
         },
 };
 struct platform_device nuc970_device_sc1 = {
-	.name		  = "nuc970_sc",
+	.name		  = "nuc970-sc",
 	.id		  = 1,
 	.num_resources	  = ARRAY_SIZE(nuc970_sc1_resource),
 	.resource	  = nuc970_sc1_resource,
@@ -1714,8 +1449,8 @@ static struct platform_device *nuc970_public_dev[] __initdata = {
         &nuc970_device_ehci,
 #endif
 #if defined(CONFIG_CRYPTO_DEV_NUC970) || defined(CONFIG_CRYPTO_DEV_NUC970_MODULE)
-		&nuc970_device_crypto,
-		&nuc970_device_prng,
+	&nuc970_device_crypto,
+	&nuc970_device_prng,
 #endif
 #if defined(CONFIG_FB_NUC970) || defined(CONFIG_FB_NUC970_MODULE)
         &nuc970fb_device_lcd,
@@ -1846,7 +1581,7 @@ void __init nuc970_platform_init(struct platform_device **device, int size)
 	spi_register_board_info(nuc970_spi0_board_info, ARRAY_SIZE(nuc970_spi0_board_info));
 #endif
 #if defined(CONFIG_SPI_NUC970_P1) || defined(CONFIG_SPI_NUC970_P1_MODULE)
-    spi_register_board_info(nuc970_spi1_board_info, ARRAY_SIZE(nuc970_spi1_board_info));
+	spi_register_board_info(nuc970_spi1_board_info, ARRAY_SIZE(nuc970_spi1_board_info));
 #endif
 #endif
 
