@@ -31,38 +31,38 @@
 /* spi registers offset */
 #define REG_CNTRL		0x00
 #define REG_DIVIDER		0x04
-#define REG_SSR		0x08
-#define REG_RX0		0x10
-#define REG_TX0		0x10
+#define REG_SSR			0x08
+#define REG_RX0			0x10
+#define REG_TX0			0x10
 
 /* spi register bit */
-#define ENINT		(0x01 << 17)
-#define ENFLG		(0x01 << 16)
-#define TXNUM		(0x03 << 8)
-#define TXNEG		(0x01 << 2)
-#define RXNEG		(0x01 << 1)
+#define ENINT			(0x01 << 17)
+#define ENFLG			(0x01 << 16)
+#define TXNUM			(0x03 << 8)
+#define TXNEG			(0x01 << 2)
+#define RXNEG			(0x01 << 1)
 #define LSB			(0x01 << 10)
-#define SELECTLEV	(0x01 << 2)
-#define SELECTPOL	(0x01 << 31)
-#define SELECTSLAVE0	0x01
-#define SELECTSLAVE1	0x02
-#define GOBUSY		0x01
+#define SELECTLEV		(0x01 << 2)
+#define SELECTPOL		(0x01 << 31)
+#define SELECTSLAVE0		0x01
+#define SELECTSLAVE1		0x02
+#define GOBUSY			0x01
 
 struct nuc970_spi {
-	struct spi_bitbang	 bitbang;
-	struct completion	 done;
+	struct spi_bitbang	bitbang;
+	struct completion	done;
 	void __iomem		*regs;
-	int			 irq;
-	unsigned int len;
-	unsigned int count;
-	const void	*tx;
-	void *rx;
+	int			irq;
+	unsigned int		len;
+	unsigned int		count;
+	const void		*tx;
+	void			*rx;
 	struct clk		*clk;
 	struct resource		*ioarea;
 	struct spi_master	*master;
 	struct spi_device	*curdev;
 	struct device		*dev;
-	struct nuc970_spi_info *pdata;
+	struct nuc970_spi_info	*pdata;
 	spinlock_t		lock;
 	struct resource		*res;
 };
@@ -270,7 +270,6 @@ static irqreturn_t nuc970_spi0_irq(int irq, void *dev)
 	} else {
 		complete(&hw->done);
 	}
-
 
 	return IRQ_HANDLED;
 }
@@ -645,12 +644,12 @@ static int nuc970_spi0_probe(struct platform_device *pdev)
 	}
 
 	hw->regs = ioremap(hw->res->start, resource_size(hw->res));
+#endif
 	if (hw->regs == NULL) {
 		dev_err(&pdev->dev, "Cannot map IO\n");
 		err = -ENXIO;
 		goto err_iomap;
 	}
-#endif
 
 	hw->irq = platform_get_irq(pdev, 0);
 	if (hw->irq < 0) {

@@ -29,42 +29,42 @@
 #include <linux/platform_data/spi-nuc970.h>
 
 /* spi registers offset */
-#define REG_CNTRL       0x00
-#define REG_DIVIDER     0x04
-#define REG_SSR     0x08
-#define REG_RX0     0x10
-#define REG_TX0     0x10
+#define REG_CNTRL		0x00
+#define REG_DIVIDER		0x04
+#define REG_SSR			0x08
+#define REG_RX0			0x10
+#define REG_TX0			0x10
 
 /* spi register bit */
-#define ENINT       (0x01 << 17)
-#define ENFLG       (0x01 << 16)
-#define TXNUM       (0x03 << 8)
-#define TXNEG       (0x01 << 2)
-#define RXNEG       (0x01 << 1)
-#define LSB         (0x01 << 10)
-#define SELECTLEV   (0x01 << 2)
-#define SELECTPOL   (0x01 << 31)
-#define SELECTSLAVE0    0x01
-#define SELECTSLAVE1    0x02
-#define GOBUSY      0x01
+#define ENINT			(0x01 << 17)
+#define ENFLG			(0x01 << 16)
+#define TXNUM			(0x03 << 8)
+#define TXNEG			(0x01 << 2)
+#define RXNEG			(0x01 << 1)
+#define LSB			(0x01 << 10)
+#define SELECTLEV		(0x01 << 2)
+#define SELECTPOL		(0x01 << 31)
+#define SELECTSLAVE0		0x01
+#define SELECTSLAVE1		0x02
+#define GOBUSY			0x01
 
 struct nuc970_spi {
-	struct spi_bitbang   bitbang;
-	struct completion    done;
-	void __iomem        *regs;
-	int          irq;
-	unsigned int len;
-	unsigned int count;
-	const void  *tx;
-	void *rx;
-	struct clk      *clk;
-	struct resource     *ioarea;
-	struct spi_master   *master;
-	struct spi_device   *curdev;
-	struct device       *dev;
-	struct nuc970_spi_info *pdata;
-	spinlock_t      lock;
-	struct resource     *res;
+	struct spi_bitbang	bitbang;
+	struct completion	done;
+	void __iomem		*regs;
+	int			irq;
+	unsigned int		len;
+	unsigned int		count;
+	const void		*tx;
+	void			*rx;
+	struct clk		*clk;
+	struct resource		*ioarea;
+	struct spi_master	*master;
+	struct spi_device	*curdev;
+	struct device		*dev;
+	struct nuc970_spi_info	*pdata;
+	spinlock_t		lock;
+	struct resource		*res;
 };
 
 static inline struct nuc970_spi1 *to_hw(struct spi_device *sdev)
@@ -478,7 +478,7 @@ static void nuc970_init_spi(struct nuc970_spi *hw)
 {
 	clk_prepare(hw->clk);
 	clk_enable(hw->clk);
-//printk("%s\n", __func__);
+
 	spin_lock_init(&hw->lock);
 
 	nuc970_tx_edge(hw, hw->pdata->txneg);
@@ -698,7 +698,7 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
  #endif
 #endif
 	if(IS_ERR(p)) {
-		dev_err(&pdev->dev, "unable to reserve pin\n");
+		dev_err(&pdev->dev, "unable to reserve spi pin by mode\n");
 		err = PTR_ERR(p);
 	}
 
@@ -719,8 +719,8 @@ err_clk:
 	free_irq(hw->irq, hw);
 err_irq:
 	iounmap(hw->regs);
-err_iomap:
 #ifndef CONFIG_OF
+err_iomap:
 	release_mem_region(hw->res->start, resource_size(hw->res));
 	kfree(hw->ioarea);
 #endif
