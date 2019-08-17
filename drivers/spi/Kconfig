@@ -564,8 +564,8 @@ endchoice
 
 config SPI_NUC970_P1_FIQ
 	bool "Use FIQ transfer"
-	depends on SPI_NUC970_P1
-	select NUC970_FIQ
+	depends on SPI_NUC970_P1 && !NUC970_FIQ 
+	select FIQ
 	default n
 	help
 	  Use FIQ interrupt for real-time transfer

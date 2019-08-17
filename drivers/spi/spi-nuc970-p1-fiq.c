@@ -28,43 +28,82 @@
 #include <mach/mfp.h>
 #include <linux/platform_data/spi-nuc970.h>
 
+#include <asm/fiq.h>
+#include <mach/map.h>
+#include <mach/regs-aic.h>
+#include "spi-nuc970-fiq.h"
+
 /* spi registers offset */
-#define REG_CNTRL       0x00
-#define REG_DIVIDER     0x04
-#define REG_SSR     0x08
-#define REG_RX0     0x10
-#define REG_TX0     0x10
+#define REG_CNTRL		0x00
+#define REG_DIVIDER		0x04
+#define REG_SSR			0x08
+#define REG_RX0			0x10
+#define REG_TX0			0x10
 
 /* spi register bit */
-#define ENINT       (0x01 << 17)
-#define ENFLG       (0x01 << 16)
-#define TXNUM       (0x03 << 8)
-#define TXNEG       (0x01 << 2)
-#define RXNEG       (0x01 << 1)
-#define LSB         (0x01 << 10)
-#define SELECTLEV   (0x01 << 2)
-#define SELECTPOL   (0x01 << 31)
-#define SELECTSLAVE0    0x01
-#define SELECTSLAVE1    0x02
-#define GOBUSY      0x01
+#define ENINT			(0x01 << 17)
+#define ENFLG			(0x01 << 16)
+#define TXNUM			(0x03 << 8)
+#define TXNEG			(0x01 << 2)
+#define RXNEG			(0x01 << 1)
+#define LSB			(0x01 << 10)
+#define SELECTLEV		(0x01 << 2)
+#define SELECTPOL		(0x01 << 31)
+#define SELECTSLAVE0		0x01
+#define SELECTSLAVE1		0x02
+#define GOBUSY			0x01
+
+struct spi_fiq_code {
+	u32		length;
+	u32		irq_mask;
+	u32		irq_reg;
+	u8		data[0];
+};
+
+
+extern struct spi_fiq_code nuc970_spi_fiq_rx_8;
+extern struct spi_fiq_code nuc970_spi_fiq_rx_16;
+extern struct spi_fiq_code nuc970_spi_fiq_rx_32;
+extern struct spi_fiq_code nuc970_spi_fiq_txrx_8;
+extern struct spi_fiq_code nuc970_spi_fiq_txrx_16;
+extern struct spi_fiq_code nuc970_spi_fiq_txrx_32;
+extern struct spi_fiq_code nuc970_spi_fiq_tx_8;
+extern struct spi_fiq_code nuc970_spi_fiq_tx_16;
+extern struct spi_fiq_code nuc970_spi_fiq_tx_32;
+
+struct spi_fiq_code *fiq_codes[] = {
+	[0] = &nuc970_spi_fiq_rx_8,
+	[1] = &nuc970_spi_fiq_rx_16,
+	[2] = &nuc970_spi_fiq_rx_32,
+	[3] = &nuc970_spi_fiq_txrx_8,
+	[4] = &nuc970_spi_fiq_txrx_16,
+	[5] = &nuc970_spi_fiq_txrx_32,
+	[6] = &nuc970_spi_fiq_tx_8,
+	[7] = &nuc970_spi_fiq_tx_16,
+	[8] = &nuc970_spi_fiq_tx_32
+};
 
 struct nuc970_spi {
-	struct spi_bitbang   bitbang;
-	struct completion    done;
-	void __iomem        *regs;
-	int          irq;
-	unsigned int len;
-	unsigned int count;
-	const void  *tx;
-	void *rx;
-	struct clk      *clk;
-	struct resource     *ioarea;
-	struct spi_master   *master;
-	struct spi_device   *curdev;
-	struct device       *dev;
-	struct nuc970_spi_info *pdata;
-	spinlock_t      lock;
-	struct resource     *res;
+	struct spi_bitbang	bitbang;
+	struct completion	done;
+	void __iomem		*regs;
+	int			irq;
+	unsigned int		len;
+	unsigned int		count;
+	const void		*tx;
+	void			*rx;
+	struct clk		*clk;
+	struct resource		*ioarea;
+	struct spi_master	*master;
+	struct spi_device	*curdev;
+	struct device		*dev;
+	struct nuc970_spi_info	*pdata;
+	spinlock_t		lock;
+	struct resource		*res;
+	struct fiq_handler	 fiq_handler;
+	unsigned char		 fiq_inuse;
+	unsigned char		 fiq_claimed;
+	struct spi_fiq_code	*fiq_code;
 };
 
 static inline struct nuc970_spi1 *to_hw(struct spi_device *sdev)
@@ -194,6 +233,132 @@ static inline void hw_rx(struct nuc970_spi *hw, unsigned int data, int count)
 		rx_int[count] = data;
 }
 
+/**
+ * nuc970_spi_fiqop - FIQ core code callback
+ * @pw: Data registered with the handler
+ * @release: Whether this is a release or a return.
+ *
+ * Called by the FIQ code when another module wants to use the FIQ, so
+ * return whether we are currently using this or not and then update our
+ * internal state.
+ */
+static int nuc970_spi_fiqop(void *pw, int release)
+{
+	struct nuc970_spi *hw = pw;
+	int ret = 0;
+
+	if (release) {
+		if (hw->fiq_inuse)
+			ret = -EBUSY;
+
+		/* note, we do not need to unroute the FIQ, as the FIQ
+		 * vector code de-routes it to signal the end of transfer */
+
+		hw->fiq_claimed = 0;
+	} else {
+		hw->fiq_claimed = 1;
+	}
+
+	return ret;
+}
+
+/**
+ * nuc970_spi_initfiq - setup the information for the FIQ core
+ * @hw: The hardware state.
+ *
+ * Setup the fiq_handler block to pass to the FIQ core.
+ */
+static inline void nuc970_spi_initfiq(struct nuc970_spi *hw)
+{
+	hw->fiq_handler.dev_id = hw;
+	hw->fiq_handler.name = dev_name(hw->dev);
+	hw->fiq_handler.fiq_op = nuc970_spi_fiqop;
+}
+
+/**
+ * nuc970_spi_tryfiq - attempt to claim and setup FIQ for transfer
+ * @hw: The hardware state.
+ *
+ * Claim the FIQ handler (only one can be active at any one time) and
+ * then setup the correct transfer code for this transfer.
+ *
+ * This call updates all the necessary state information if successful,
+ * so the caller does not need to do anything more than start the transfer
+ * as normal, since the IRQ will have been re-routed to the FIQ handler.
+*/
+void nuc970_spi_tryfiq(struct nuc970_spi *hw)
+{
+	struct pt_regs regs;
+	struct spi_fiq_code *code;
+	int ret, codesel;
+
+	/* do not bother with small transfers */
+	if (hw->len < 12) return;
+
+	if (!hw->fiq_claimed) {
+		/* try and claim fiq if we haven't got it, and if not
+		 * then return and simply use another transfer method */
+
+		ret = claim_fiq(&hw->fiq_handler);
+		if (ret)
+			return;
+		/* Not claimed before, so need to reload code */
+		hw->fiq_code = NULL;
+		hw->fiq_claimed = 1;
+	}
+	/* setup FIQ registers */
+	regs.uregs[fiq_rspi] = (long)hw->regs;
+	regs.uregs[fiq_rrx]  = (long)hw->rx;
+	regs.uregs[fiq_rtx]  = (long)hw->tx;
+	hw->count = (hw->len - 4) & ~3;
+	regs.uregs[fiq_rcount] = hw->count;
+	regs.uregs[fiq_rirq] = (long)AIC_BA;
+
+	//printk("%s count:%d\n", __func__, hw->count);
+	/* select FIQ handler based on required operation */
+	if (hw->rx) {
+		if (hw->tx)
+			codesel = 3;
+		else
+			codesel = 0;
+	} else {
+		codesel = 6;
+	}
+	/* adjust FIQ handler selection and tx pointer based on word length */
+	if (hw->pdata->txbitlen > 16) {
+		codesel += 2;
+		regs.uregs[fiq_rtx] += 16;
+	} else if (hw->pdata->txbitlen > 8) {
+		codesel += 1;
+		regs.uregs[fiq_rtx] += 8;
+	} else {
+		regs.uregs[fiq_rtx] += 4;
+	}
+
+	code = fiq_codes[codesel];
+
+	set_fiq_regs(&regs);
+
+	if (hw->fiq_code != code) {
+		/* Only reload FIQ code if change needed */
+		u32 *ack_ptr;
+
+		/* remember which code installed */
+		hw->fiq_code = code;
+		/* set mask and offset for SPI1 IRQ */
+		ack_ptr = (u32 *)&code->data[code->irq_mask];
+		*ack_ptr = 0x00000007;
+		ack_ptr = (u32 *)&code->data[code->irq_reg];
+		*ack_ptr = (u32)REG_AIC_SCR14;
+		set_fiq_handler(&code->data, code->length);
+	}
+
+	hw->fiq_inuse = 1;
+	/* switch SPI1 interrupt to FIQ mode */
+	__raw_writel(__raw_readl(REG_AIC_SCR14) & ~0x00000007, REG_AIC_SCR14);
+	/* enable_fiq(IRQ_SPI1); */
+}
+
 static int nuc970_spi1_txrx(struct spi_device *spi, struct spi_transfer *t)
 {
 	struct nuc970_spi *hw = (struct nuc970_spi *)to_hw(spi);
@@ -203,6 +368,7 @@ static int nuc970_spi1_txrx(struct spi_device *spi, struct spi_transfer *t)
 	hw->rx = t->rx_buf;
 	hw->len = t->len;
 	hw->count = 0;
+	hw->fiq_inuse = 0;
 
 	if(t->tx_nbits & SPI_NBITS_DUAL) {
 		__raw_writel(__raw_readl(hw->regs + REG_CNTRL) | (0x5 << 20), hw->regs + REG_CNTRL);
@@ -219,6 +385,7 @@ static int nuc970_spi1_txrx(struct spi_device *spi, struct spi_transfer *t)
 	if(hw->len >= 4) {
 		nuc970_spi1_setup_txnum(hw, 3);
 		hw->pdata->txnum = 3;
+		nuc970_spi_tryfiq(hw);
 	} else {
 		nuc970_spi1_setup_txnum(hw, hw->len-1);
 		hw->pdata->txnum = hw->len-1;
@@ -268,6 +435,7 @@ static irqreturn_t nuc970_spi1_irq(int irq, void *dev)
 		nuc970_spi1_gobusy(hw);
 
 	} else {
+		hw->fiq_inuse = 0;
 		complete(&hw->done);
 	}
 
@@ -711,6 +879,9 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+
+	/* initialise fiq handler */
+	nuc970_spi_initfiq(hw);
 
 err_register:
 	clk_disable(hw->clk);

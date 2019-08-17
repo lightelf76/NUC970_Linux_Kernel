@@ -44,6 +44,7 @@ obj-$(CONFIG_SPI_NUC900)		+= spi-nuc900.o
 obj-$(CONFIG_SPI_NUC970_P0)		+= spi-nuc970-p0.o
 ifeq ($(CONFIG_SPI_NUC970_P1_FIQ),y)
 obj-$(CONFIG_SPI_NUC970_P1)		+= spi-nuc970-p1-fiq.o
+obj-$(CONFIG_SPI_NUC970_P1)		+= spi-nuc970-fiq.o
 else
 obj-$(CONFIG_SPI_NUC970_P1)		+= spi-nuc970-p1.o
 endif

@@ -206,6 +206,11 @@
 #define NUC970_PA_SPI1 		(0xB8006300)
 #define NUC970_SZ_SPI1		SZ_256
 
+/* SPI Controller */
+#define NUC970_VA_SPI 		NUC970_ADDR(0x08006200)
+#define NUC970_PA_SPI 		(0xB8006200)
+#define NUC970_SZ_SPI		SZ_256
+
 /* Pulse Width Modulation(PWM) Registers */
 #define NUC970_VA_PWM		NUC970_ADDR(0x08007000)
 #define NUC970_PA_PWM		(0xB8007000)
