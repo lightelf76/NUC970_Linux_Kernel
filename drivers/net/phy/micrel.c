@@ -23,6 +23,7 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/mii.h>
 #include <linux/phy.h>
 #include <linux/micrel_phy.h>
 
@@ -174,6 +175,72 @@ static int ksz8873mll_config_aneg(struct phy_device *phydev)
 	return 0;
 }
 
+/* Switch registers (0..255) are spread across a number of MDIO dev/regs */
+static void ksz8895_write_reg(struct phy_device *phydev, u8 reg, u8 val)
+{
+	mdiobus_write(phydev->bus, 0x06 | ((reg & 0xc0)>>3) | ((reg & 0x20)>>5), reg & 0x1f, val);
+}
+
+static u8 ksz8895_read_reg(struct phy_device *phydev, u8 reg)
+{
+	return (u8)mdiobus_read(phydev->bus, 0x06 | ((reg & 0xc0)>>3) | ((reg & 0x20)>>5), reg & 0x1f);
+}
+
+static int ksz8895_config_init(struct phy_device *phydev)
+{
+	u8 val;
+	/* stop switch operations */
+	ksz8895_write_reg(phydev, 0x01, 0x00);
+	/* query IC revision */
+	val = ksz8895_read_reg(phydev, 0x89) >> 4;
+	if (val == 4) {
+		/* Errata fix for rev.A2 */
+		ksz8895_write_reg(phydev, 0xac, 0x05);
+		ksz8895_write_reg(phydev, 0xad, 0x01);
+	}
+	if ((val == 4) || (val == 5)) {
+		/* Errata fix for rev.A2 and A3 */
+		ksz8895_write_reg(phydev, 0x47, 0x01);
+		ksz8895_write_reg(phydev, 0x27, 0x00);
+		ksz8895_write_reg(phydev, 0x37, 0x00);
+		ksz8895_write_reg(phydev, 0x47, 0x01);
+		ksz8895_write_reg(phydev, 0x27, 0x00);
+		ksz8895_write_reg(phydev, 0x37, 0x01);
+		ksz8895_write_reg(phydev, 0x27, 0x00);
+		ksz8895_write_reg(phydev, 0x79, 0x00);
+		/* power-off all phy ports */
+		ksz8895_write_reg(phydev, 0x1d, 0x08);
+		ksz8895_write_reg(phydev, 0x2d, 0x08);
+		ksz8895_write_reg(phydev, 0x3d, 0x08);
+		ksz8895_write_reg(phydev, 0x4d, 0x08);
+		/* power-on all ports */
+		ksz8895_write_reg(phydev, 0x1d, 0x00);
+		ksz8895_write_reg(phydev, 0x2d, 0x00);
+		ksz8895_write_reg(phydev, 0x3d, 0x00);
+		ksz8895_write_reg(phydev, 0x4d, 0x00);
+	}
+	/* start switch operation */
+	ksz8895_write_reg(phydev, 0x01, 0x01);
+	return 0;
+}
+
+static int ksz8895_config_aneg(struct phy_device *phydev)
+{
+	return 0;
+}
+
+static int ksz8895_read_status(struct phy_device *phydev)
+{
+	/* Hey, this is switch, it always 100FD */
+	phydev->duplex = DUPLEX_FULL;
+	phydev->speed = SPEED_100;
+	phydev->link = 1;
+	phydev->pause = phydev->asym_pause = 0;
+
+	return 0;
+}
+
+
 static struct phy_driver ksphy_driver[] = {
 {
 	.phy_id		= PHY_ID_KS8737,
@@ -320,6 +387,16 @@ static struct phy_driver ksphy_driver[] = {
 	.config_aneg	= genphy_config_aneg,
 	.read_status	= genphy_read_status,
 	.driver		= { .owner = THIS_MODULE, },
+}, {
+	.phy_id		= PHY_ID_KSZ8895,
+	.phy_id_mask	= 0x00fffff0,
+	.name		= "Micrel KSZ8895 Switch (Non-managed)",
+	.features	= (PHY_BASIC_FEATURES | SUPPORTED_Pause),
+	.flags		= PHY_HAS_MAGICANEG,
+	.config_init	= ksz8895_config_init,
+	.config_aneg	= ksz8895_config_aneg,
+	.read_status	= ksz8895_read_status,
+	.driver		= { .owner = THIS_MODULE, },
 } };
 
 static int __init ksphy_init(void)
@@ -354,6 +431,7 @@ static struct mdio_device_id __maybe_unused micrel_tbl[] = {
 	{ PHY_ID_KSZ8081, 0x00fffff0 },
 	{ PHY_ID_KSZ8873MLL, 0x00fffff0 },
 	{ PHY_ID_KSZ886X, 0x00fffff0 },
+	{ PHY_ID_KSZ8895, 0x00fffff0 },
 	{ }
 };
 
