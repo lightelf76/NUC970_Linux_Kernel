@@ -19,6 +19,7 @@
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/string.h>
+#include <linux/ctype.h>
 #include <linux/mm.h>
 #include <linux/tty.h>
 #include <linux/slab.h>
@@ -45,6 +46,7 @@
 
 #include "nuc970fb.h"
 
+int nuc970_panel_override = -1;
 
 #ifdef CONFIG_ILI9431_MPU80_240x320
 void nuc970_mpu_write_cmd(struct fb_info *info, unsigned short uscmd)
@@ -479,7 +481,7 @@ static int nuc970fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *i
 	spin_lock_irqsave(&fbi->lock, flags);
 
 	fbi->dual_fb_base = var->yoffset * info->fix.line_length;
-	
+
 	spin_unlock_irqrestore(&fbi->lock, flags);
 
 	// printk("pan_display: [0x%x],  %d, %d - %d, %d\n", fbi->dual_fb_base, var->xoffset, var->yoffset, info->var.xoffset, info->var.yoffset);
@@ -489,10 +491,10 @@ static int nuc970fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *i
 
 
 static struct fb_ops nuc970fb_ops = {
-	.owner			= THIS_MODULE,
+	.owner		= THIS_MODULE,
 	.fb_check_var	= nuc970fb_check_var,
-	.fb_set_par		= nuc970fb_set_par,
-	.fb_blank		= nuc970fb_blank,
+	.fb_set_par	= nuc970fb_set_par,
+	.fb_blank	= nuc970fb_blank,
 #ifdef CONFIG_NUC970_DUAL_FB
 	.fb_pan_display = nuc970fb_pan_display,
 #endif
@@ -586,7 +588,7 @@ static irqreturn_t nuc970fb_irqhandler(int irq, void *dev_id)
 	void __iomem *irq_base = fbi->irq_base;
 	unsigned long lcdirq = readl(regs + REG_LCM_INT_CS);
 
-	if (lcdirq & LCM_INT_CS_DISP_F_STATUS) 
+	if (lcdirq & LCM_INT_CS_DISP_F_STATUS)
 	{
 		writel(readl(irq_base) | 1<<30, irq_base);
 #ifdef CONFIG_PM
@@ -608,25 +610,25 @@ static irqreturn_t nuc970fb_irqhandler(int irq, void *dev_id)
 			regs + REG_LCM_DCCS);
 
 #ifdef CONFIG_NUC970_DUAL_FB
-		if (fbi->dual_fb_base == 0) 
+		if (fbi->dual_fb_base == 0)
 		{
 			/* Starting fetch data from VA_BADDR0 */
-			writel(readl(regs + REG_LCM_VA_FBCTRL) & ~LCM_VA_FBCTRL_START_BUF, regs + REG_LCM_VA_FBCTRL);		
+			writel(readl(regs + REG_LCM_VA_FBCTRL) & ~LCM_VA_FBCTRL_START_BUF, regs + REG_LCM_VA_FBCTRL);
 		}
 		else
 		{
 			/* Starting fetch data from VA_BADDR1 */
 			writel(readl(regs + REG_LCM_VA_BADDR0) + fbi->dual_fb_base, regs + REG_LCM_VA_BADDR1);
-			writel(readl(regs + REG_LCM_VA_FBCTRL) | LCM_VA_FBCTRL_START_BUF, regs + REG_LCM_VA_FBCTRL);		
+			writel(readl(regs + REG_LCM_VA_FBCTRL) | LCM_VA_FBCTRL_START_BUF, regs + REG_LCM_VA_FBCTRL);
 		}
 #endif
 
-	} 
-	else if (lcdirq & LCM_INT_CS_UNDERRUN_INT) 
+	}
+	else if (lcdirq & LCM_INT_CS_UNDERRUN_INT)
 	{
 		writel(readl(irq_base) | LCM_INT_CS_UNDERRUN_INT, irq_base);
-	} 
-	else if (lcdirq & LCM_INT_CS_BUS_ERROR_INT) 
+	}
+	else if (lcdirq & LCM_INT_CS_BUS_ERROR_INT)
 	{
 		writel(readl(irq_base) | LCM_INT_CS_BUS_ERROR_INT, irq_base);
 	}
@@ -861,6 +863,30 @@ static struct nuc970fb_mach_info *nuc970fb_parse_dt(struct device *dev)
 }
 #endif
 
+static __init int select_panel(char *str) {
+	char *c = str;
+	int val = 0;
+
+	if (!str)
+		goto err;
+
+	while (*c) {
+		val *= 10;
+		if (isdigit(*c)) {
+			val += *c - '0';
+		} else {
+			goto err;
+		}
+		c++;
+	}
+	if ((val >= 0) && (val < 256))
+		nuc970_panel_override = val;
+	return 0;
+err:
+	return -EINVAL;
+}
+early_param("tftpanel", select_panel);
+
 static int nuc970fb_probe(struct platform_device *pdev)
 {
 	struct nuc970fb_info *fbi;
@@ -885,6 +911,15 @@ static int nuc970fb_probe(struct platform_device *pdev)
 	}
 	printk("[%s] %x\n", __func__, mach_info->displays[0].bpp);
 
+	if (nuc970_panel_override != -1) {
+		if (nuc970_panel_override >= mach_info->num_displays) {
+			dev_err(&pdev->dev,
+				"cmdline display No. is %d but only %d displays \n",
+				nuc970_panel_override, mach_info->num_displays);
+		} else {
+			mach_info->default_display = nuc970_panel_override;
+		}
+	}
 	if (mach_info->default_display > mach_info->num_displays) {
 		dev_err(&pdev->dev,
 			"default display No. is %d but only %d displays \n",
@@ -928,7 +963,7 @@ static int nuc970fb_probe(struct platform_device *pdev)
 	}
 
 	fbi->irq_base = fbi->io + REG_LCM_INT_CS;
-	
+
 	spin_lock_init(&fbi->lock);
 	fbi->dual_fb_base        = 0;
 
@@ -1032,13 +1067,13 @@ static int nuc970fb_probe(struct platform_device *pdev)
 	nuc970fb_init_registers(fbinfo);
 
 	nuc970fb_check_var(&fbinfo->var, fbinfo);
-	
+
 	ret = fb_set_var(fbinfo, &fbinfo->var);
 	if (ret) {
 		dev_warn(&pdev->dev, "unable to set display parameters\n");
 		goto free_video_memory;
 	}
-	
+
 	ret = nuc970fb_cpufreq_register(fbi);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to register cpufreq\n");

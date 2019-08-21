@@ -328,7 +328,7 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.upper_margin	= 8,
 		.lower_margin	= 16,
 		.vsync_len	= 1,
-		.devctl		= 0x050800c0,
+		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
 	[1] = {
@@ -385,7 +385,7 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-	/* TIANMA TM070RDH13 800x480 TFT Panel , 16bits */
+	/* TIANMA TM070RDH13 800x480 TFT Panel, 16bits */
 	[3] = {
     #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
@@ -412,9 +412,63 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-#if 0
-	/* TIANMA TM097TDH01V2 1024x768 TFT Panel, 16bits */
+	/* AUO A104SN03-V0 800x600 TFT Panel, 16 bit*/
 	[4] = {
+    #ifdef CONFIG_FB_SRCFMT_RGB565
+		.type		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x01900190,
+    #else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x03200320,
+    #endif
+		.width		= 800,
+		.height		= 600,
+		.xres		= 800,
+		.yres		= 600,
+		.pixclock	= 40000000,
+		.left_margin	= 88,
+		.right_margin	= 40,
+		.hsync_len	= 128,
+		.upper_margin	= 22,
+		.lower_margin	= 2,
+		.vsync_len	= 3,
+		.devctl		= 0x050000c0,
+		.scale		= 0x04000400,
+	},
+	/* */
+	[5] = {
+    #ifdef CONFIG_FB_SRCFMT_RGB565
+		.type		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x02000200,
+    #else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x04000400,
+    #endif
+		.width		= 1024,
+		.height		= 600,
+		.xres		= 1024,
+		.yres		= 600,
+		.pixclock	= 51200000,
+		.left_margin	= 140,
+		.right_margin	= 160,
+		.hsync_len	= 20,
+		.upper_margin	= 21,
+		.lower_margin	= 12,
+		.vsync_len	= 2,
+		.devctl		= 0x050000c0,
+		.scale		= 0x04000400,
+	},
+
+	/* TIANMA TM097TDH01V2 1024x768 TFT Panel, 16bits */
+	[6] = {
     #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
@@ -440,7 +494,6 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-#endif /* if 0 */
 };
 
 static struct nuc970fb_mach_info nuc970fb_fb_info = {
