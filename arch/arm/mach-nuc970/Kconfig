@@ -58,13 +58,17 @@ config BOARD_DISP977
 	depends on !USE_OF
     bool "NUC977 DISP977 Board"
 
+config BOARD_LAN977
+	depends on !USE_OF
+    bool "NUC977 LAN977 Board"
+
 config BOARD_BIODISP
 	depends on !USE_OF
     bool "NUC977 BIODISP Board"
 
-config BOARD_LAN977
+config BOARD_BIOLAN
 	depends on !USE_OF
-    bool "NUC977 LAN977 Board"
+    bool "NUC977 BIOLAN Board"
 
 
 config BOARD_HMI

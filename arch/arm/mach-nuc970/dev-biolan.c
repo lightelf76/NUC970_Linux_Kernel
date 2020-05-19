@@ -306,17 +306,17 @@ static struct platform_device nuc970_serial_device10 = {
 static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	/* AUO G057QN01V2 320x240 TFT Panel , 16bits */
 	[0] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x00a000a0,
-    #else
+#else
 		.type		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 16,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x01400140,
-    #endif /* CONFIG_FB_SRCFMT_RGB565 */
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 320,
 		.height		= 240,
 		.xres		= 320,
@@ -328,22 +328,22 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.upper_margin	= 8,
 		.lower_margin	= 16,
 		.vsync_len	= 1,
-		.devctl		= 0x050000c0,
+		.devctl		= 0x050800c0,
 		.scale		= 0x04000400,
 	},
 	[1] = {
 	/* AUO G043FW01V0 480x272, 16bits */
-    #ifdef CONFIG_FB_SRCFMT_RGB565
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type 		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x00F000F0,
-    #else
+#else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x01E001E0,
-    #endif /* CONFIG_FB_SRCFMT_RGB565 */
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 480,
 		.height		= 272,
 		.xres		= 480,
@@ -360,17 +360,17 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 	},
 	/* AUO G057VN01V2 640x480 TFT Panel, 16bits */
 	[2] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type 		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01400140,
-    #else
+#else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x02800280,
-    #endif /* CONFIG_FB_SRCFMT_RGB565 */
+#endif /* CONFIG_FB_SRCFMT_RGB565 */
 		.width		= 640,
 		.height		= 480,
 		.xres		= 640,
@@ -385,102 +385,46 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-	/* TIANMA TM070RDH13 800x480 TFT Panel, 16bits */
-	/* WINSTAR WF50ESWAGDNN 800x480 TFT Panel, 16bits */
+	/* TIANMA TM070RDH13 800x480 TFT Panel , 16bits */
 	[3] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x01900190,
-    #else
+#else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x03200320,
-    #endif
+#endif
 		.width		= 800,
 		.height		= 480,
 		.xres		= 800,
 		.yres		= 480,
-		.pixclock	= 27200000,
-		.left_margin	= 16,
-		.right_margin	= 44,
-		.hsync_len	= 2,
-		.upper_margin	= 6,
-		.lower_margin	= 42,
-		.vsync_len	= 2,
-		.devctl		= 0x050000c0,
-		.scale		= 0x04000400,
-	},
-	/* AUO A104SN03-V0 800x600 TFT Panel, 16 bit*/
-	[4] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
-		.type		= LCM_DCCS_VA_SRC_RGB565,
-		.bpp		= 16,
-		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x01900190,
-    #else
-		.type 		= LCM_DCCS_VA_SRC_RGB888,
-		.bpp		= 32,
-		.dccs		= 0x0e00020a,
-		.fbctrl		= 0x03200320,
-    #endif
-		.width		= 800,
-		.height		= 600,
-		.xres		= 800,
-		.yres		= 600,
-		.pixclock	= 40000000,
-		.left_margin	= 88,
-		.right_margin	= 40,
-		.hsync_len	= 128,
-		.upper_margin	= 22,
-		.lower_margin	= 2,
+		.pixclock	= 30000000,
+		.left_margin	= 46,
+		.right_margin	= 210,
+		.hsync_len	= 20,
+		.upper_margin	= 23,
+		.lower_margin	= 22,
 		.vsync_len	= 3,
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-	/* */
-	[5] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
-		.type		= LCM_DCCS_VA_SRC_RGB565,
-		.bpp		= 16,
-		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x02000200,
-    #else
-		.type 		= LCM_DCCS_VA_SRC_RGB888,
-		.bpp		= 32,
-		.dccs		= 0x0e00020a,
-		.fbctrl		= 0x04000400,
-    #endif
-		.width		= 1024,
-		.height		= 600,
-		.xres		= 1024,
-		.yres		= 600,
-		.pixclock	= 51200000,
-		.left_margin	= 140,
-		.right_margin	= 160,
-		.hsync_len	= 20,
-		.upper_margin	= 21,
-		.lower_margin	= 12,
-		.vsync_len	= 2,
-		.devctl		= 0x050000c0,
-		.scale		= 0x04000400,
-	},
-
 	/* TIANMA TM097TDH01V2 1024x768 TFT Panel, 16bits */
-	[6] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
+	[4] = {
+#ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
 		.dccs		= 0x0e00040a,
 		.fbctrl		= 0x02000200,
-    #else
+#else
 		.type 		= LCM_DCCS_VA_SRC_RGB888,
 		.bpp		= 32,
 		.dccs		= 0x0e00020a,
 		.fbctrl		= 0x04000400,
-    #endif
+#endif
 		.width		= 1024,
 		.height		= 768,
 		.xres		= 1024,
@@ -500,9 +444,9 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 static struct nuc970fb_mach_info nuc970fb_fb_info = {
 	.displays		= &nuc970fb_lcd_info[0],
 	.num_displays		= ARRAY_SIZE(nuc970fb_lcd_info),
-	.default_display	= 2,
-        .gpio_blen		= NUC970_PG3,
-        .gpio_lcs		= NUC970_PG2,
+	.default_display	= 0,
+        .gpio_blen          = NUC970_PG3,
+        .gpio_lcs           = NUC970_PG2,
 };
 
 static struct resource nuc970fb_lcd_resource[] = {
