@@ -61,6 +61,17 @@ obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-lan977.o
 NUC970_SPECIFIC_PIN = y
 endif
 
+ifeq ($(CONFIG_BOARD_BIODISP),y)
+obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-biodisp.o
+NUC970_SPECIFIC_PIN = y
+endif
+
+ifeq ($(CONFIG_BOARD_BIOLAN),y)
+obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-biolan.o
+NUC970_SPECIFIC_PIN = y
+endif
+
+
 ifneq ($(NUC970_SPECIFIC_PIN),y)
 obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970.o
 endif
