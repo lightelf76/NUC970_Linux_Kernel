@@ -812,12 +812,12 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 	}
 
 	hw->regs = ioremap(hw->res->start, resource_size(hw->res));
-#endif
 	if (hw->regs == NULL) {
 		dev_err(&pdev->dev, "Cannot map IO\n");
 		err = -ENXIO;
 		goto err_iomap;
 	}
+#endif
 
 	hw->irq = platform_get_irq(pdev, 0);
 	if (hw->irq < 0) {
