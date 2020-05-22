@@ -1,7 +1,7 @@
 /* linux/drivers/spi/spi_nuc970_fiq.h
  *
- * Copyright 2009 Simtec Electronics
- *	Ben Dooks <ben@simtec.co.uk>
+ * Copyright 2019 Infomatika LLC
+ *	Valery Gaynullin <valery@infomatika.ru>
  *
  * NUC970 SPI - FIQ pseudo-DMA transfer support
  *

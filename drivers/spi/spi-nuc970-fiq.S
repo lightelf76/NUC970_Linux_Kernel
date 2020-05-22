@@ -1,5 +1,8 @@
 /* linux/drivers/spi/spi_nuc970_fiq.S
  *
+ * Copyright 2019 Infomatika LLC
+ *	Valery Gaynullin <valery@infomatika.ru>
+ * Based on S3C2410 code, which is:
  * Copyright 2009 Simtec Electronics
  *	Ben Dooks <ben@simtec.co.uk>
  *
@@ -38,7 +41,7 @@
 	@ defined in fiq.h so that they can be shared with the C files which
 	@ setup the calling registers.
 	@
-	@ fiq_rirq	The base of the IRQ registers to find S3C2410_SRCPND
+	@ fiq_rirq	The base of the AIC registers
 	@ fiq_rtmp	Temporary register to hold tx/rx data
 	@ fiq_rspi	The base of the SPI register block
 	@ fiq_rtx	The tx buffer pointer
@@ -89,7 +92,7 @@ fiq_rx_8_start:
 
 	@ no data anymore, switching to IRQ mode
 
-	@ construct pointer to one of AIC_SCRx into fiq_rirq
+	@ construct the pointer to one of AIC_SCRx into fiq_rirq
 	@ we can trash registers here, because work is done
 	ldr	fiq_rirq, fiq_rx_8_irq_reg
 	@ apply mask
