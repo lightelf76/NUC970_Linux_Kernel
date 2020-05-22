@@ -36,6 +36,8 @@ MODULE_LICENSE("GPL");
 
 /* IP101A/G - IP1001 */
 #define IP10XX_SPEC_CTRL_STATUS		16	/* Spec. Control Register */
+#define IP10XX_PAGE_CTRL		20	/* Page Control Register */
+
 #define IP1001_RXPHASE_SEL		(1<<0)	/* Add delay on RX_CLK */
 #define IP1001_TXPHASE_SEL		(1<<1)	/* Add delay on TX_CLK */
 #define IP1001_SPEC_CTRL_STATUS_2	20	/* IP1001 Spec. Control Reg 2 */
@@ -131,6 +133,10 @@ static int ip1xx_reset(struct phy_device *phydev)
 		if (bmcr < 0)
 			return bmcr;
 	} while (bmcr & BMCR_RESET);
+
+	bmcr = phy_write(phydev, IP10XX_PAGE_CTRL, 16);
+	if (bmcr < 0)
+		return bmcr;
 
 	return 0;
 }
