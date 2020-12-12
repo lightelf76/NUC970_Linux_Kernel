@@ -207,7 +207,6 @@ static const unsigned kpi_7_pins[] = {0x7C, 0x7D, 0x7E, 0x7F}; // 8 col
 static const unsigned kpi_8_pins[] = {0x04, 0x05, 0x6}; // 3 row
 
 
-<<<<<<< HEAD
 #if defined(CONFIG_BOARD_TOMATO) || defined(CONFIG_CPU_N9H30) || defined(CONFIG_BOARD_DISP976)
 static const unsigned sd0_pins[] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36};
 #else
