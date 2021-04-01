@@ -10,6 +10,11 @@ obj-y				+= dev-disp977.o
 NUC970_SPECIFIC_DEV = y
 endif
 
+ifeq ($(CONFIG_BOARD_DISP977V4),y)
+obj-y				+= dev-disp977.o
+NUC970_SPECIFIC_DEV = y
+endif
+
 ifeq ($(CONFIG_BOARD_LAN977),y)
 obj-y				+= dev-lan977.o
 NUC970_SPECIFIC_DEV = y

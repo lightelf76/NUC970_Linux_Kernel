@@ -56,6 +56,12 @@ obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-disp977.o
 NUC970_SPECIFIC_PIN = y
 endif
 
+ifeq ($(CONFIG_BOARD_DISP977V4),y)
+obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-disp977v4.o
+NUC970_SPECIFIC_PIN = y
+endif
+
+
 ifeq ($(CONFIG_BOARD_LAN977),y)
 obj-$(CONFIG_PINCTRL_NUC970)	+= pinctrl-nuc970-lan977.o
 NUC970_SPECIFIC_PIN = y

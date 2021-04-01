@@ -58,6 +58,10 @@ config BOARD_DISP977
 	depends on !USE_OF
     bool "NUC977 DISP977 Board"
 
+config BOARD_DISP977V4
+	depends on !USE_OF
+    bool "NUC977 DISP977V4 Board"
+
 config BOARD_LAN977
 	depends on !USE_OF
     bool "NUC977 LAN977 Board"
