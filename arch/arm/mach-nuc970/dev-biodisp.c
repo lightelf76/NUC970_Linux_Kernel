@@ -385,35 +385,8 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
-	/* WINSTAR WF50ESWAGDNN 800x480 TFT Panel, 16bits */
-	[3] = {
-    #ifdef CONFIG_FB_SRCFMT_RGB565
-		.type		= LCM_DCCS_VA_SRC_RGB565,
-		.bpp		= 16,
-		.dccs		= 0x0e00040a,
-		.fbctrl		= 0x01900190,
-    #else
-		.type 		= LCM_DCCS_VA_SRC_RGB888,
-		.bpp		= 32,
-		.dccs		= 0x0e00020a,
-		.fbctrl		= 0x03200320,
-    #endif
-		.width		= 800,
-		.height		= 480,
-		.xres		= 800,
-		.yres		= 480,
-		.pixclock	= 27200000,
-		.left_margin	= 16,
-		.right_margin	= 44,
-		.hsync_len	= 2,
-		.upper_margin	= 6,
-		.lower_margin	= 42,
-		.vsync_len	= 2,
-		.devctl		= 0x050000c0,
-		.scale		= 0x04000400,
-	},
 	/* TIANMA TM070RDH13 800x480 TFT Panel, 16bits */
-	[4] = {
+	[3] = {
     #ifdef CONFIG_FB_SRCFMT_RGB565
 		.type		= LCM_DCCS_VA_SRC_RGB565,
 		.bpp		= 16,
@@ -436,6 +409,33 @@ static struct nuc970fb_display nuc970fb_lcd_info[] = {
 		.upper_margin	= 23,
 		.lower_margin	= 22,
 		.vsync_len	= 3,
+		.devctl		= 0x050000c0,
+		.scale		= 0x04000400,
+	},
+	/* WINSTAR WF50ESWAGDNN 800x480 TFT Panel, 16bits */
+	[4] = {
+    #ifdef CONFIG_FB_SRCFMT_RGB565
+		.type		= LCM_DCCS_VA_SRC_RGB565,
+		.bpp		= 16,
+		.dccs		= 0x0e00040a,
+		.fbctrl		= 0x01900190,
+    #else
+		.type 		= LCM_DCCS_VA_SRC_RGB888,
+		.bpp		= 32,
+		.dccs		= 0x0e00020a,
+		.fbctrl		= 0x03200320,
+    #endif
+		.width		= 800,
+		.height		= 480,
+		.xres		= 800,
+		.yres		= 480,
+		.pixclock	= 27200000,
+		.left_margin	= 16,
+		.right_margin	= 44,
+		.hsync_len	= 2,
+		.upper_margin	= 6,
+		.lower_margin	= 42,
+		.vsync_len	= 2,
 		.devctl		= 0x050000c0,
 		.scale		= 0x04000400,
 	},
