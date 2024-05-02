@@ -29,6 +29,7 @@
 #include <linux/platform_data/spi-nuc970.h>
 
 /* spi registers offset */
+<<<<<<< HEAD
 #define REG_CNTRL		0x00
 #define REG_DIVIDER		0x04
 #define REG_SSR			0x08
@@ -65,6 +66,44 @@ struct nuc970_spi {
 	struct nuc970_spi_info	*pdata;
 	spinlock_t		lock;
 	struct resource		*res;
+=======
+#define REG_CNTRL       0x00
+#define REG_DIVIDER     0x04
+#define REG_SSR     0x08
+#define REG_RX0     0x10
+#define REG_TX0     0x10
+
+/* spi register bit */
+#define ENINT       (0x01 << 17)
+#define ENFLG       (0x01 << 16)
+#define TXNUM       (0x03 << 8)
+#define TXNEG       (0x01 << 2)
+#define RXNEG       (0x01 << 1)
+#define LSB         (0x01 << 10)
+#define SELECTLEV   (0x01 << 2)
+#define SELECTPOL   (0x01 << 31)
+#define SELECTSLAVE0    0x01
+#define SELECTSLAVE1    0x02
+#define GOBUSY      0x01
+
+struct nuc970_spi {
+	struct spi_bitbang   bitbang;
+	struct completion    done;
+	void __iomem        *regs;
+	int          irq;
+	unsigned int len;
+	unsigned int count;
+	const void  *tx;
+	void *rx;
+	struct clk      *clk;
+	struct resource     *ioarea;
+	struct spi_master   *master;
+	struct spi_device   *curdev;
+	struct device       *dev;
+	struct nuc970_spi_info *pdata;
+	spinlock_t      lock;
+	struct resource     *res;
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 };
 
 static inline struct nuc970_spi1 *to_hw(struct spi_device *sdev)
@@ -408,6 +447,22 @@ static int nuc970_spi1_update_state(struct spi_device *spi,
 		hw->pdata->divider = div;
 	}
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_OF)
+	if (hw->pdata->quad)
+		spi->mode |= (SPI_TX_QUAD | SPI_RX_QUAD);
+	else
+		spi->mode |= (SPI_RX_DUAL | SPI_TX_DUAL);
+#else
+#if defined(CONFIG_SPI_NUC970_P1_QUAD_MODE)
+                spi->mode |= (SPI_TX_QUAD | SPI_RX_QUAD);
+#elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE)
+                spi->mode |= (SPI_RX_DUAL | SPI_TX_DUAL);
+#endif
+#endif
+
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	//Mode 0: CPOL=0, CPHA=0; active high
 	//Mode 1: CPOL=0, CPHA=1 ;active low
 	//Mode 2: CPOL=1, CPHA=0 ;active low
@@ -478,7 +533,11 @@ static void nuc970_init_spi(struct nuc970_spi *hw)
 {
 	clk_prepare(hw->clk);
 	clk_enable(hw->clk);
+<<<<<<< HEAD
 
+=======
+//printk("%s\n", __func__);
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	spin_lock_init(&hw->lock);
 
 	nuc970_tx_edge(hw, hw->pdata->txneg);
@@ -574,6 +633,15 @@ static struct nuc970_spi_info *nuc970_spi1_parse_dt(struct device *dev)
 		sci->bus_num = temp;
 	}
 
+<<<<<<< HEAD
+=======
+	if (of_property_read_u32(dev->of_node, "quad", &temp)) {
+		dev_warn(dev, "can't get quad from dt\n");
+		sci->quad = 0;
+	} else {
+		sci->quad = temp;
+	}
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	return sci;
 }
 #else
@@ -610,11 +678,26 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, hw);
 	init_completion(&hw->done);
+<<<<<<< HEAD
 #if defined(CONFIG_SPI_NUC970_P1_PB) || defined(CONFIG_SPI_NUC970_P1_PI)
 	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
 #elif defined(CONFIG_SPI_NUC970_P1_QUAD_PB) || defined(CONFIG_SPI_NUC970_P1_QUAD_PI)
 	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
 #endif
+=======
+#if defined(CONFIG_OF)
+        if (hw->pdata->quad)
+                master->mode_bits = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+        else
+                master->mode_bits = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+#else
+#if defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE)
+	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+#elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE)
+	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+#endif
+#endif
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	master->dev.of_node        = pdev->dev.of_node;
 	master->num_chipselect     = hw->pdata->num_cs;
 	master->bus_num            = hw->pdata->bus_num;
@@ -644,12 +727,19 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 	}
 
 	hw->regs = ioremap(hw->res->start, resource_size(hw->res));
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	if (hw->regs == NULL) {
 		dev_err(&pdev->dev, "Cannot map IO\n");
 		err = -ENXIO;
 		goto err_iomap;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 
 	hw->irq = platform_get_irq(pdev, 0);
 	if (hw->irq < 0) {
@@ -675,6 +765,7 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 #if defined(CONFIG_OF)
 	p = devm_pinctrl_get_select_default(&pdev->dev);
 #else
+<<<<<<< HEAD
  #if defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi1-PB");
  #elif defined(CONFIG_SPI_NUC970_P1_NORMAL) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
@@ -699,6 +790,28 @@ static int nuc970_spi1_probe(struct platform_device *pdev)
 #endif
 	if(IS_ERR(p)) {
 		dev_err(&pdev->dev, "unable to reserve spi pin by mode\n");
+=======
+ #if defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-PB");
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-PI");
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-ss1-PB");
+ #elif defined(CONFIG_SPI_NUC970_P1_NORMAL_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-ss1-PI");
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-PB");
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && !defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-PI");
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PB) && defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-ss1-PB");
+ #elif defined(CONFIG_SPI_NUC970_P1_QUAD_MODE) && defined(CONFIG_SPI_NUC970_P1_PI) && defined(CONFIG_SPI_NUC970_P1_SS1)
+	p = devm_pinctrl_get_select(&pdev->dev, "spi1-quad-ss1-PI");
+ #endif
+#endif
+	if(IS_ERR(p)) {
+		dev_err(&pdev->dev, "unable to reserve pin\n");
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 		err = PTR_ERR(p);
 	}
 
@@ -719,8 +832,13 @@ err_clk:
 	free_irq(hw->irq, hw);
 err_irq:
 	iounmap(hw->regs);
+<<<<<<< HEAD
 #ifndef CONFIG_OF
 err_iomap:
+=======
+err_iomap:
+#ifndef CONFIG_OF
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	release_mem_region(hw->res->start, resource_size(hw->res));
 	kfree(hw->ioarea);
 #endif

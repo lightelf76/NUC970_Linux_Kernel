@@ -31,6 +31,7 @@
 /* spi registers offset */
 #define REG_CNTRL		0x00
 #define REG_DIVIDER		0x04
+<<<<<<< HEAD
 #define REG_SSR			0x08
 #define REG_RX0			0x10
 #define REG_TX0			0x10
@@ -57,12 +58,44 @@ struct nuc970_spi {
 	unsigned int		count;
 	const void		*tx;
 	void			*rx;
+=======
+#define REG_SSR		0x08
+#define REG_RX0		0x10
+#define REG_TX0		0x10
+
+/* spi register bit */
+#define ENINT		(0x01 << 17)
+#define ENFLG		(0x01 << 16)
+#define TXNUM		(0x03 << 8)
+#define TXNEG		(0x01 << 2)
+#define RXNEG		(0x01 << 1)
+#define LSB			(0x01 << 10)
+#define SELECTLEV	(0x01 << 2)
+#define SELECTPOL	(0x01 << 31)
+#define SELECTSLAVE0	0x01
+#define SELECTSLAVE1	0x02
+#define GOBUSY		0x01
+
+struct nuc970_spi {
+	struct spi_bitbang	 bitbang;
+	struct completion	 done;
+	void __iomem		*regs;
+	int			 irq;
+	unsigned int len;
+	unsigned int count;
+	const void	*tx;
+	void *rx;
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	struct clk		*clk;
 	struct resource		*ioarea;
 	struct spi_master	*master;
 	struct spi_device	*curdev;
 	struct device		*dev;
+<<<<<<< HEAD
 	struct nuc970_spi_info	*pdata;
+=======
+	struct nuc970_spi_info *pdata;
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	spinlock_t		lock;
 	struct resource		*res;
 };
@@ -271,6 +304,10 @@ static irqreturn_t nuc970_spi0_irq(int irq, void *dev)
 		complete(&hw->done);
 	}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	return IRQ_HANDLED;
 }
 
@@ -408,6 +445,22 @@ static int nuc970_spi0_update_state(struct spi_device *spi,
 		hw->pdata->divider = div;
 	}
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_OF)
+	if(hw->pdata->quad)
+		spi->mode |= (SPI_TX_QUAD | SPI_RX_QUAD);
+	else
+		spi->mode |= (SPI_RX_DUAL | SPI_TX_DUAL);
+#else
+#if defined(CONFIG_SPI_NUC970_P0_QUAD)
+		spi->mode |= (SPI_TX_QUAD | SPI_RX_QUAD);
+#elif defined(CONFIG_SPI_NUC970_P0_NORMAL)
+		spi->mode |= (SPI_RX_DUAL | SPI_TX_DUAL);
+#endif
+#endif
+
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	//Mode 0: CPOL=0, CPHA=0; active high
 	//Mode 1: CPOL=0, CPHA=1 ;active low
 	//Mode 2: CPOL=1, CPHA=0 ;active low
@@ -574,6 +627,15 @@ static struct nuc970_spi_info *nuc970_spi0_parse_dt(struct device *dev)
 		sci->bus_num = temp;
 	}
 
+<<<<<<< HEAD
+=======
+	if (of_property_read_u32(dev->of_node, "quad", &temp)) {
+		dev_warn(dev, "can't get quad from dt\n");
+		sci->quad = 0;
+	} else {
+		sci->quad = temp;
+	}
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	return sci;
 }
 #else
@@ -610,11 +672,24 @@ static int nuc970_spi0_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, hw);
 	init_completion(&hw->done);
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_OF)
+	if (hw->pdata->quad)
+		master->mode_bits = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+	else
+		master->mode_bits = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
+#else
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 #if defined(CONFIG_SPI_NUC970_P0_NORMAL)
 	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
 #elif defined(CONFIG_SPI_NUC970_P0_QUAD)
 	master->mode_bits          = (SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD | SPI_CS_HIGH | SPI_LSB_FIRST | SPI_CPHA | SPI_CPOL);
 #endif
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	master->dev.of_node        = pdev->dev.of_node;
 	master->num_chipselect     = hw->pdata->num_cs;
 	master->bus_num            = hw->pdata->bus_num;
@@ -685,7 +760,11 @@ static int nuc970_spi0_probe(struct platform_device *pdev)
  #elif defined(CONFIG_SPI_NUC970_P0_QUAD) && defined(CONFIG_SPI_NUC970_P0_SS1_PB0)
 	p = devm_pinctrl_get_select(&pdev->dev, "spi0-quad-ss1-PB");
  #elif defined(CONFIG_SPI_NUC970_P0_QUAD) && defined(CONFIG_SPI_NUC970_P0_SS1_PH12)
+<<<<<<< HEAD
 	p = devm_pinctrl_get_select(&pdev->dev, "spi0-quad-ss1-PB");
+=======
+	p = devm_pinctrl_get_select(&pdev->dev, "spi0-quad-ss1-PH");
+>>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
  #endif
 #endif
 	if(IS_ERR(p)) {

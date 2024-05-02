@@ -46,11 +46,8 @@
 
 #include "nuc970fb.h"
 
-<<<<<<< HEAD
 int nuc970_panel_override = -1;
 
-=======
->>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 #ifdef CONFIG_ILI9431_MPU80_240x320
 void nuc970_mpu_write_cmd(struct fb_info *info, unsigned short uscmd)
 {
@@ -517,18 +514,11 @@ static int nuc970fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *i
 
 
 static struct fb_ops nuc970fb_ops = {
-<<<<<<< HEAD
-	.owner		= THIS_MODULE,
-	.fb_check_var	= nuc970fb_check_var,
-	.fb_set_par	= nuc970fb_set_par,
-	.fb_blank	= nuc970fb_blank,
-=======
 	.owner          = THIS_MODULE,
 	.fb_check_var   = nuc970fb_check_var,
 	.fb_set_par     = nuc970fb_set_par,
 	.fb_blank       = nuc970fb_blank,
 	.fb_ioctl       = nuc970fb_ioctl,
->>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 #ifdef CONFIG_NUC970_DUAL_FB
 	.fb_pan_display = nuc970fb_pan_display,
 #endif
@@ -621,10 +611,7 @@ static irqreturn_t nuc970fb_irqhandler(int irq, void *dev_id)
 	void __iomem *irq_base = fbi->irq_base;
 	unsigned long lcdirq = readl(regs + REG_LCM_INT_CS);
 
-<<<<<<< HEAD
-=======
 	//printk("[0x%x, 0x%x] lcdirq = 0x%x\n", readl(fbi->io + REG_LCM_DCCS), readl(fbi->io +  REG_LCM_INT_CS), lcdirq);
->>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 	if (lcdirq & LCM_INT_CS_DISP_F_STATUS)
 	{
 		fbi->vsync_count++;
