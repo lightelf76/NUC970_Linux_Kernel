@@ -892,57 +892,6 @@ static void nuc970_sd_request(struct mmc_host *mmc, struct mmc_request *mrq)
 extern unsigned long get_cpu_clk(void);
 static void nuc970_sd_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
-<<<<<<< HEAD
-    struct nuc970_sd_host *host = mmc_priv(mmc);
-    host->bus_mode = ios->bus_width;
-    ENTRY();
-    if (down_interruptible(&sdh_fmi_sem)) return;
-    /* maybe switch power to the card */
-    switch (ios->power_mode)
-    {
-        case MMC_POWER_OFF:
-            //dump_sdh_regs();
-            nuc970_sd_write(REG_FMICSR, 0);
-            __raw_writel(0x1, REG_SDECR);
-            break;
-        case MMC_POWER_UP:
-        case MMC_POWER_ON: // enable 74 clocks
-            __raw_writel(0, REG_SDECR);
-	    nuc970_sd_write(REG_FMICSR, FMICSR_SD_EN);
-
-            if (ios->clock == 0) {
-                up(&sdh_fmi_sem);
-                return;
-            }
-            //printk("ios->clock=%d\n",ios->clock);
-            if (ios->clock <= 400000)
-            {
-                clk_set_rate(host->upll_clk, 100000000);
-                clk_set_rate(host->sd_clk, ios->clock);
-                nuc970_sd_write(REG_SDCSR, nuc970_sd_read(REG_SDCSR) | SDCSR_CLK74_OE);
-                while (nuc970_sd_read(REG_SDCSR) & SDCSR_CLK74_OE);
-            }
-            else{
-                clk_set_rate(host->sd_clk, ios->clock);
-            }
-            break;
-        default:
-            WARN_ON(1);
-    }
-
-    if (ios->bus_width == MMC_BUS_WIDTH_4)
-    {
-        nuc970_sd_debug("MMC: Setting controller bus width to 4\n");
-        nuc970_sd_write(REG_SDCSR, nuc970_sd_read(REG_SDCSR) | SDCSR_DBW);
-    }
-    else
-    {
-        //nuc970_sd_debug("MMC: Setting controller bus width to 1\n");
-        nuc970_sd_write(REG_SDCSR, nuc970_sd_read(REG_SDCSR) & ~SDCSR_DBW);
-    }
-    up(&sdh_fmi_sem);
-    LEAVE();
-=======
 	struct nuc970_sd_host *host = mmc_priv(mmc);
 	host->bus_mode = ios->bus_width;
 	ENTRY();
@@ -990,7 +939,6 @@ static void nuc970_sd_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	}
 	up(&sdh_fmi_sem);
 	LEAVE();
->>>>>>> 9dfc02146dbb9a57be4abb97e4e62533078cf817
 }
 
 #define SD_TIMEOUT	10000000
