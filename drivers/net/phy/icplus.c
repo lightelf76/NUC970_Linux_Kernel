@@ -104,14 +104,11 @@ static int ip175c_config_init(struct phy_device *phydev)
 		full_reset_performed = 1;
 	}
 
-	if (phydev->addr != 4) {
-		phydev->state = PHY_RUNNING;
-		phydev->speed = SPEED_100;
-		phydev->duplex = DUPLEX_FULL;
-		phydev->link = 1;
-		netif_carrier_on(phydev->attached_dev);
-	}
-
+	phydev->state = PHY_RUNNING;
+	phydev->speed = SPEED_100;
+	phydev->duplex = DUPLEX_FULL;
+	phydev->link = 1;
+	netif_carrier_on(phydev->attached_dev);
 	return 0;
 }
 
@@ -206,27 +203,16 @@ static int ip101a_g_config_init(struct phy_device *phydev)
 
 static int ip175c_read_status(struct phy_device *phydev)
 {
-	if (phydev->addr == 4) /* WAN port */
-		genphy_read_status(phydev);
-	else {
-#if 0		
-		/* Don't need to read status for switch ports */
-		phydev->irq = PHY_IGNORE_INTERRUPT;
-#endif	
-		/* Hey, this is switch, it always 100FD */
-		phydev->duplex = DUPLEX_FULL;
-		phydev->speed = SPEED_100;
-		phydev->link = 1;
-		phydev->pause = phydev->asym_pause = 0;
-	}
+	/* Hey, this is switch, it always 100FD */
+	phydev->duplex = DUPLEX_FULL;
+	phydev->speed = SPEED_100;
+	phydev->link = 1;
+	phydev->pause = phydev->asym_pause = 0;
 	return 0;
 }
 
 static int ip175c_config_aneg(struct phy_device *phydev)
 {
-	if (phydev->addr == 4) /* WAN port */
-		genphy_config_aneg(phydev);
-
 	return 0;
 }
 
