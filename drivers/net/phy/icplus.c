@@ -208,10 +208,17 @@ static int ip175c_read_status(struct phy_device *phydev)
 {
 	if (phydev->addr == 4) /* WAN port */
 		genphy_read_status(phydev);
-	else
+	else {
+#if 0		
 		/* Don't need to read status for switch ports */
 		phydev->irq = PHY_IGNORE_INTERRUPT;
-
+#endif	
+		/* Hey, this is switch, it always 100FD */
+		phydev->duplex = DUPLEX_FULL;
+		phydev->speed = SPEED_100;
+		phydev->link = 1;
+		phydev->pause = phydev->asym_pause = 0;
+	}
 	return 0;
 }
 
